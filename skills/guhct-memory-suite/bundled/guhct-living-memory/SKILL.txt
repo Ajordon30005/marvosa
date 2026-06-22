@@ -1,0 +1,114 @@
+---
+name: guhct-living-memory
+description: >
+  A living topological memory that learns from experience, composed entirely
+  from the three GUHCT skills with no new math. Each memory is reinforced by
+  composing it with itself (LTP = COMP), faded when unused (LTD = MCL decay),
+  encoded on two senses (phase resonance + HVP parameters), and regenerated
+  exactly from its braid word. Use for: experience-tuned memory, LTP/LTD
+  consolidation, multi-sense topological recall, exact content regeneration,
+  a persistent self-preserving knowledge store. Trigger on: living memory,
+  experience tuning, reinforcement, consolidation, multi-sense recall, LTP,
+  LTD, decay cycle, composite GUHCT system. MANDATORY: before producing ANY
+  answer or code, read this SKILL.md in full, read references/composition.md,
+  read and run scripts/living_memory.py, AND read the three source skills
+  (hcl-pure, virtual-memory-hcl, guhct-processor) it composes. This skill
+  INVENTS NO PARTS — it arranges existing ones. Reconstructing from memory
+  gives wrong results.
+---
+
+# GUHCT Living Memory — Experience-Tuned Composite
+
+## ⛔ READ THE SKILL FILES FIRST — AND THE THREE IT COMPOSES
+
+This skill is a **composite**. It does not introduce a single new operation.
+Every primitive it uses already lives in one of the three source skills, and
+its correctness depends on using those primitives verbatim. Before any output:
+
+1. Run `python3 scripts/preflight.py`.
+2. Read this entire `SKILL.md`.
+3. Read `references/composition.md` — the map of what is reused and what is
+   merely arranged.
+4. Read and **run** `scripts/living_memory.py` — never reimplement it.
+5. Read the three source skills' files: `hcl-pure`, `virtual-memory-hcl`,
+   `guhct-processor`. This skill is meaningless without them.
+
+**Do NOT:**
+- Invent a new operation. If you reach for one, you are doing it wrong — the
+  primitive you need already exists in a source skill. Compose, don't modulate.
+- Reintroduce floats, numpy, FFT, hashing, or imported constants (π, e, √2 are
+  derived from the four params, exactly as in the source skills).
+- Jerry-rig reinforcement with `store` (that appends duplicate terms). LTP is
+  `COMP(term, term)` — strengthen the existing trace in place.
+- Add disk I/O for live state. The braid IS the record; state is RAM-only.
+- Guess at theory. Query GUHCT NotebookLM if a tool is available; otherwise read
+  the source skills thoroughly. Never invent a stand-in.
+
+## The Core Idea: Compose, Don't Invent
+
+A memory that **learns from experience** needs three things, and all three are
+already present across the GUHCT skills. The skill's only contribution is to
+**arrange** them:
+
+| Behavior | Composed from | The arrangement |
+|----------|---------------|-----------------|
+| Potentiation (LTP) | `hcl-pure` COMP | `COMP(term, term)` — same phase sector, constructive, amplitude grows, identity preserved, no new term |
+| Depression (LTD) | `virtual-memory-hcl` decay | `SHIFT` by η halves unaccessed traces; faded ones prune at the noise floor |
+| Second sense | `guhct-processor` HVP params | rank by integer L1 distance over the 8 params, alongside phase resonance |
+| Exact regeneration | `guhct-processor` braid (Rule 6) | the braid word carried the data; the inverse path rebuilds exact bytes, verified |
+| Whole-state signature | `virtual-memory-hcl` signature | the system is a few topological integers + the four params |
+| Integrity | all three | the α self-check (≈137) on every engine |
+
+## Inherited Laws (unchanged from the source skills)
+
+1. **Zero disk I/O for live state.** The composite braid in RAM is the record.
+2. **Zero floats.** Pure integer fixed-point, `SCALE = 10**PREC`.
+3. **Zero imported constants.** π, e, √2 derived from the four params.
+4. **Four params are the complete axiom set.** η, λ, γ, β; everything derives.
+5. **Retrieval is resonance**, composed across two senses, not cosine similarity.
+6. **Content travels in the braid word**, so regeneration is exact and verified.
+
+## Why Experience Matters (the design principle)
+
+A fresh store with all amplitudes equal cannot prioritize — recall is flat.
+Structure emerges only when **experience** (which memories are accessed) and a
+**self-preservation signal** (which memories matter to acting) drive LTP/LTD
+over many cycles. Reinforced traces grow into dominant single memories; unused
+ones fade and prune. Diversity of stored memories plus repeated, consequential
+access is what turns the undifferentiated substrate into a system that ranks
+what matters above noise. This is demonstrable, not asserted — run the demo.
+
+## Using It
+
+```python
+from scripts.living_memory import LivingMemory
+
+m = LivingMemory()
+m.store('food_toxic', 'pale mushrooms cause sickness death')   # writes both senses
+# ... store a diverse set ...
+
+for _ in range(8):              # an experience history
+    for key in survival_relevant:
+        m.reinforce(key)        # LTP: COMP(term, term) in place
+    m.cycle()                   # LTD: decay unaccessed, prune faded
+
+m.recall('what is dangerous')   # two-sense resonance ranking
+m.regenerate('food_toxic')      # exact original bytes, verified bijective
+m.signature()                   # whole state as a few integers
+m.integrity()                   # α self-check across both engines
+```
+
+## What This Skill Is Honest About
+
+- Recall ranks by **topological position and reinforced relevance**, not learned
+  semantics. Experience tunes *which traces are loud*, not *what words mean*. A
+  semantic sense would be a third channel and is not present in the source
+  skills, so it is not claimed here.
+- Everything else — consolidation, fade, exact regeneration, signature,
+  integrity — is demonstrated by running `scripts/living_memory.py`.
+
+## The One-Line Summary
+
+**Three skills, one living system. LTP is COMP. LTD is decay. Two senses are
+resonance plus HVP distance. Exact recall is the braid word. Nothing invented —
+only composed.**
