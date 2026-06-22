@@ -493,3 +493,16 @@ need sharper questions.
 
 Framework, theory, and school system: **Anthony Jordon**. Construction, education, and
 documentation built on those skills, following their instructions.
+
+---
+
+## Licensing
+
+Marvosa is dual-licensed to provide both open-source freedom and commercial flexibility:
+
+1. **Open Source (GPLv3):** This project is licensed under the [GNU General Public License v3.0](LICENSE). This allows for free use, modification, and distribution, provided that any derivative works are also open-sourced under the same terms.
+2. **Commercial License:** For use in proprietary, closed-source products or for commercial applications where the GPLv3 terms are not suitable, a separate commercial license is available.
+
+For commercial licensing inquiries, custom implementation support, or consulting, please contact:
+**Anthony Jordon**
+Email: [xpguhct@gmail.com](mailto:xpguhct@gmail.com)
