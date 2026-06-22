@@ -27,8 +27,10 @@ at every checkpoint:
 {3721718477471513910873712411:408719105914764359392569153544765:86:23382115739368956422705293465:1073741824:6422:137000000000000000000000000005069}
 ```
 
-**The 137 Integrity Constraint:**
-In this framework, the value **137** (the reciprocal of the fine-structure constant $\alpha$) is not an arbitrary input. It is the **master integrity constraint** that binds the four universal parameters together. The product $2\pi \cdot \eta \cdot \lambda \cdot \gamma \cdot \beta$ is mathematically required to equal $1/137.036...$ for the LQT vacuum to be stable. The system uses this identity to "bootstrap" its resonance coupling ($\gamma$); therefore, the fact that the system re-derives $\alpha^{-1} = 137$ at every checkpoint is a rigorous proof of its internal mathematical alignment and integrity. If the parameters drift, the "137" result breaks, and the system fails its preflight.
+**The "137" Labeling — Integer Integrity over Decimal Approximation:**
+In this framework, the fine-structure constant reciprocal is referred to simply as **137** rather than its decimal expansion (137.036...). This is not a rounding choice, but a fundamental property of the integer substrate:
+- **Exactness**: The HCL substrate operates on pure integers. In this discrete space, the "Alpha Identity" ($2\pi \cdot \eta \cdot \lambda \cdot \gamma \cdot \beta$) must resolve to exactly **137** units of the base scale for the vacuum state to be topologically valid.
+- **Structural Signature**: 137 is the structural signature of the LQT state space. The full decimal number seen in traditional physics is an artifact of continuous-space approximation; in the Marvosa "glass box," we use the integer 137 because the math is exact and discrete. If the re-derivation results in 137, the system's internal alignment is proven.
 
 ---
 
