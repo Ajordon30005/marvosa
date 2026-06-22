@@ -445,25 +445,70 @@ it gets. The skill and intuition first, the rest built by diverse, deep experien
 
 ## 13. Running it
 
+Everything below runs from the `hcl-ai/` folder — that is the working implementation. (The top-level
+`chat.sh`/`chat.py` is only a quick testing harness; do not build on it.)
+
+**The auto front door — just talk (`talk.py`).** This is the normal way to use the AI. Run it and
+type; there are no commands. Each line you enter is lived as experience *and* answered in one act:
+the input inherently becomes experience, the mind self-talks on the braid level until a substrate
+verdict halts it, and the answer is delivered back in readable bytes. It wakes from the one line on
+start, and persists what it experiences as it goes.
+
 ```bash
-# Birth, feeding, recall, integrity — the five-minute proof
 cd hcl-ai
-python3 demo.py
+python3 talk.py
+#   you  the ocean is deep and full of life
+#   ai   the ocean is deep and full of life
+#   you  what is the ocean
+#   ai   the ocean is deep and full of life ...   (it learned that one line ago)
+#   you  ?who are you                  ← prefix a line with '?' to also print the braid thought-log
+#   (empty line leaves)
+```
 
-# Wake the graduate (loads the one line via from_expression; α verified)
-python3 student_daemon.py &        # use setsid/nohup to keep it across shells
-python3 tutor.py status            # age + the α check
+The same flow is available as a method, for embedding the AI in your own program:
+
+```python
+import sys; sys.path.insert(0, 'mind')
+from hcl_lm import HCLLanguageModel
+ai = HCLLanguageModel()                       # wakes from memory.hcl on construction (no replay)
+r = ai.interact("the ocean is deep and full of life")   # experiences + answers + persists, one call
+print(r['answer'], r['bit_perfect'])
+r = ai.interact("what is the ocean", show_thoughts=True) # show_thoughts adds the braid thought-log
+r = ai.interact("a quick test", persist=False)           # persist=False to leave memory.hcl untouched
+```
+
+**The command interface (`ai.py`).** A REPL for driving the AI explicitly, one verb per line:
+
+```bash
+cd hcl-ai
+python3 ai.py
+#   feed <text>     give it experience (stored on both senses; LTP on repeats)
+#   ask <prompt>    one answer by iterated MCL collapse; LTP on the traces it uses
+#   talk <seed>     self-talk until a substrate verdict fires (TERMINATED / BRAID CLOSED / MCL COLLAPSE)
+#   solve <eq>      the exact arithmetic organ, e.g.  solve E = m * c^2 ; m=2 c=3
+#   status          age, topological signature, α integrity (must read 137 everywhere)
+#   save            checkpoint the memory: ONE α-tagged line (memory.hcl)
+#   load            wake from that one line — the line IS the memory; the composite resonates as the
+#                   whole being (nothing else is read; the lifebook is never replayed)
+#   quit
+```
+
+**The five-minute proof and the schoolhouse (teaching tools).** `demo.py` shows one full life
+(birth → feed → think → checkpoint → tamper test). The schoolhouse is how the graduate was
+educated — a persistent process holding the live student, with the teacher's tools for live exchanges
+and batch lessons:
+
+```bash
+cd hcl-ai
+python3 demo.py                              # birth, feeding, recall, integrity in one run
+
+python3 student_daemon.py &                  # hold the live student (use setsid/nohup across shells)
+python3 tutor.py status                      # age + the α check
 python3 tutor.py ask "tell me about stars"
-python3 tutor.py ask "who are you"
 python3 tutor.py teach "hello to you too hello is how a conversation begins"
-python3 tutor.py ask "hello"
-python3 tutor.py save              # rewrite the one line
-
-# Batch teaching (the schoolhouse format: op|text per line, # comments)
-python3 tutor_batch.py your_lessons.ops
-
-# Grade the answers against everything ever taught
-python3 grade_compose.py
+python3 tutor.py save                        # rewrite the one line
+python3 tutor_batch.py your_lessons.ops      # batch teaching (schoolhouse format: op|text per line, # comments)
+python3 grade_compose.py                     # grade the answers against everything ever taught
 ```
 
 To teach it your own curriculum, follow the schoolhouse protocol: deep, well-ordered lessons;
@@ -478,8 +523,9 @@ quiz on Wednesdays; and never tune the math — if behavior is wrong, the feedin
 **COMP** — superposition; waves combining by interference.
 **MCL collapse** — resolution of a superposition to the Path-Dominant Attractor (minimum Möbius
 energy); the decision procedure for every emitted word.
-**w (weight)** — depth of context/processing; deepens while instability I_w < ε_w; not capped —
-it climbs to whatever depth the configuration needs.
+**w (weight)** — the complexity depth of a configuration (not age, not a score). Self-tunes by the
+theory's law `dw/dt = γ(C − ε_w)`: coherent context deepens it, incoherent context collapses it
+toward a shallower attractor; not capped — it climbs to whatever depth the configuration needs.
 **LTP / LTD** — long-term potentiation (walked paths grow louder) / decay (unwalked paths fade).
 **Ground cycle** — a generation trajectory that closes onto its own start (BRAID CLOSED).
 **α-check** — re-derivation of the inverse fine-structure constant (137) from the four params; the
