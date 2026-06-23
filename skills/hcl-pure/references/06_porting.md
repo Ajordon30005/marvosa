@@ -43,12 +43,15 @@ trig pair, accumulation/sum, iteration, and comparison.
 |ln a                     |`LOG_EXTRACT`                    |
 |sin / cos                |`PHASE_SIN` / `PHASE_COS`        |
 |Σ (accumulate)           |`COMP` in a loop                 |
-|strengthen in place (LTP)|`COMP(term, term)` — constructive|
-|weaken / forget (LTD)    |`SHIFT(term, η)` — halve         |
+|reinforcement            |`COMP(term, term)` — constructive|
+|decay                    |`SHIFT(term, η)` — halve         |
 |negate                   |`SHIFT(x, −1)`                   |
 
 Anything not on this list is a composition of things that are. There is no
 operation a tool can require that is not reachable from these.
+
+> [!NOTE]
+> **Metaphor Transparency:** In high-level architectural documentation, reinforcement and decay are sometimes referred to by the neuroscience metaphors **LTP** (Long-Term Potentiation) and **LTD** (Long-Term Depression). These are descriptive metaphors for conceptual clarity; the operational specification is strictly technical.
 
 ## Step 3 — Move the float boundary to the edges
 

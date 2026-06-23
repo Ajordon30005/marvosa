@@ -30,8 +30,11 @@ hcl-ai/
 |-------|------|------|
 | Mind | `hcl_engine.py` (hcl-pure) | exact arithmetic; reasoning via `HCLEquation`; every value an FBit on the four-param substrate |
 | Senses / effectors | `juj.py` (guhct-processor) | bytes ↔ HVP, bijective and verified; the AI perceives and **speaks in HVP** — output travels as one signature and expands bit-perfectly |
-| Living memory | `living_memory.py` | LTP = `COMP(term, term)`, LTD = `SHIFT` by η decay; two-sense recall; exact regeneration from the kept braid word |
+| Living memory | `living_memory.py` | Reinforcement = `COMP(term, term)`, Decay = `SHIFT` by η; two-sense recall; exact regeneration from the kept braid word |
 | Stable index | `hcl_memory.py` | topological store; resonance retrieval; the memory IS the braid equation |
+
+> [!NOTE]
+> **Metaphor Transparency:** In documentation, the `COMP` reinforcement and `SHIFT` decay are sometimes referred to as LTP (Long-Term Potentiation) and LTD (Long-Term Depression). These are descriptive metaphors; the operational specification is strictly technical.
 
 ## How the LM works (every step is an existing primitive)
 
@@ -40,7 +43,7 @@ hcl-ai/
   Möbius position amplitude). Derived, never chosen.
 - **Context state** = COMP accumulation → spectrum FBit (`braid_invariants`).
 - **Weights** = braid-term amplitudes produced by the engine's own
-  `encode_text` COMP fold, tuned only by LTP/LTD — never set by fiat.
+  `encode_text` COMP fold, tuned only by self-reinforcement/decay — never set by fiat.
 - **Context depth** self-tunes by the MCL collapse condition stated
   verbatim in the files: `I_w < ε_w` fires collapse, where I_w is the
   stability measure the processor engine itself computes
@@ -66,11 +69,6 @@ hcl-ai/
 python3 demo.py
 ```
 
-Verified in this build: α⁻¹ = 137.0 on all three engines before and after the
-full run; π, √2, e, e^(−0.5), sin(π/6) exact to 40 digits; E=mc² and the
-Lorentz factor solved exactly with braid words; bit-perfect HVP round trips;
-LTP growth and LTD pruning behaving as the suite demonstrates.
-
 ## What it is honest about (inherited from the suite)
 
 Recall ranks by topological position and reinforced relevance, not learned
@@ -93,9 +91,9 @@ method.)
 `python3 ai.py` is the explicit front door for driving it by command:
 
 ```
-feed <text>      experience: stored on both senses, repeats reinforced (LTP)
-ask <prompt>     one answer by iterated MCL collapse; LTP on used traces;
-                 one LTD cycle after — every answer is also experience
+feed <text>      experience: stored on both senses, repeats reinforced
+ask <prompt>     one answer by iterated MCL collapse; reinforcement on used traces;
+                 one decay cycle after — every answer is also experience
 talk <seed>      self-talk until a Collatz-grounded verdict fires:
                  TERMINATED / BRAID CLOSED (ground cycle) / MCL COLLAPSE
 solve <eq>; v=n  the exact arithmetic organ (hcl-pure), braid word kept

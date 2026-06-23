@@ -14,7 +14,7 @@ The two-cans loop with a teacher's hand. All composition, no new parts:
                 holds the exact state (the words so far, the live braid)
   inject        the teacher DEMONSTRATES — the lesson is expressed on the
                 substrate via train() (stored on both senses, repeats
-                reinforced = LTP), so watching becomes lived experience
+                reinforced), so watching becomes lived experience
   resume        same halted words, same loop — now the attractor exists
 """
 import sys, os
@@ -41,12 +41,12 @@ def self_talk(ai, seed, max_rounds=4, tokens_per_round=8):
         out = ai.generate(' '.join(words))
         reason = lost_reason(out['events'])
         spoken = ai.speak(out['text'])          # emit as HVP signature
-        words  = spoken['expanded'].split()     # expand → next input (bit-perfect)
+        words  = spoken['text'].split()         # expand → next input (bit-perfect)
         print(f"    round {r+1}: w={[e['w'] for e in out['events']] or '—'}  "
               f"text='{' '.join(words[-10:])}'")
         if reason:
             return words, reason
-        ai.experience_cycle()                   # LTD between rounds (lived)
+        ai.experience_cycle()                   # decay between rounds (lived)
     return words, None
 
 
@@ -74,7 +74,7 @@ def _demo():
     rep = ai.train(lesson)
     print(f"    stored={rep['stored']}  reinforced={rep['reinforced']}")
     rep2 = ai.train(lesson)
-    print(f"    imitation pass: reinforced={rep2['reinforced']} (LTP in place)")
+    print(f"    imitation pass: reinforced={rep2['reinforced']} (reinforcement in place)")
 
     print('\n[3] RESUME FROM THE EXACT HALTED STATE:')
     words2, reason2 = self_talk(ai, ' '.join(words[-4:]), max_rounds=3)

@@ -15,11 +15,14 @@ was violated and what broke), and it is the framework's core law: compose, never
 | Memory store | LivingMemory traces, keys `w{d}|{ctx}>{next}`, stored at every depth d=1..context-length | engine/living_memory.py |
 | Attention / retrieval | Resonance: `hcl_comp(query, term)` amplitude × reinforced amplitude, max wins | mind/hcl_lm.py `_collapse` |
 | Next-token selection | MCL collapse to the Path-Dominant Attractor (minimum Möbius energy) | engine/hcl_engine.py |
-| Learning rate / training | LTP = `COMP(term, term)` self-reinforcement on walked paths | mind/hcl_lm.py (routing only) |
-| Regularization | LTD = `cycle()` decay (`HCL.SHIFT` halves unaccessed traces; sub-noise-floor pruned) | engine/living_memory.py |
+| Learning rate / training | `COMP(term, term)` self-reinforcement on walked paths | mind/hcl_lm.py (routing only) |
+| Regularization | `cycle()` decay (`HCL.SHIFT` halves unaccessed traces; sub-noise-floor pruned) | engine/living_memory.py |
 | Context-length adaptation | w self-tuning: `dw/dt = γ(C − ε_w)`, C = context coherence; deepen while C > ε_w, bound only by context length | mind/hcl_lm.py `_tune_w` |
 | Stopping criterion | Three substrate verdicts: TERMINATED (key None) / BRAID CLOSED (key recurs) / MCL COLLAPSE (I_w < ε_w) | mind/hcl_lm.py `generate` |
 | Checkpoint | `to_expression()` → one α-tagged line; `from_expression()` verifies or rejects | engine/hcl_memory.py |
+
+> [!NOTE]
+> **Terminological Note:** In conceptual architectural discussions, the self-reinforcement of walked paths is sometimes referred to by the neuroscience metaphor "Long-Term Potentiation" (LTP). In this operational specification, it is strictly defined as the `COMP(term, term)` self-superposition operation.
 
 ## The persistence philosophy
 
@@ -43,8 +46,8 @@ go faster.
 
 ## The homeostatic balance
 
-Reinforcement and decay are the field's balance, with no separate rescale bolted on. LTP
-(`COMP(term, term)`) makes a walked trace louder; LTD (`cycle()` = `HCL.SHIFT`) halves every trace not
+Reinforcement and decay are the field's balance, with no separate rescale bolted on. Self-reinforcement
+(`COMP(term, term)`) makes a walked trace louder; decay (`cycle()` = `HCL.SHIFT`) halves every trace not
 accessed since the last cycle and prunes those that fall below the noise floor. A walked path grows; an
 ignored one fades and can wash out — then is re-learnable, never destroyed. That loud-grows / unused-fades
 dynamic is the entire homeostasis; the theory's subtractive restoring force lives in the SHIFT decay

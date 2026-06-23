@@ -14,9 +14,9 @@ logs is transcribed and resolved on the hcl-pure substrate; the log is a
 human-readable record of that, never the computation itself.
 
 Commands:
-  feed <text>     give it experience (stored both senses, LTP on repeats;
+  feed <text>     give it experience (stored both senses, reinforced on repeats;
                   the input is also appended to lifebook.txt — the plain log)
-  ask <prompt>    one answer: iterated MCL collapse, LTP on used traces
+  ask <prompt>    one answer: iterated MCL collapse, reinforcement on used traces
   talk <seed>     self-talk until a substrate verdict fires (TERMINATED /
                   BRAID CLOSED / MCL COLLAPSE)
   solve <eq>      exact arithmetic organ, e.g.  solve E = m * c^2 ; m=2 c=3
@@ -42,7 +42,7 @@ ai = HCLLanguageModel()
 
 
 def cmd_feed(text):
-    r1 = ai.train(text); r2 = ai.train(text)       # walk twice = LTP
+    r1 = ai.train(text); r2 = ai.train(text)       # walk twice = reinforcement
     with open(LIFEBOOK, 'a') as f:
         f.write(text.strip() + '\n')
     print(f"  fed: stored={r1['stored']} reinforced={r1['reinforced']+r2['reinforced']}"

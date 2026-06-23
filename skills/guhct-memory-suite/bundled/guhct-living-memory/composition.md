@@ -10,32 +10,35 @@ for each behavior, exactly which source operation it is, and how it is arranged.
 |--------------------|------------------------|--------------|--------------|
 | store (sense 1) | `HCLMemory.store` | virtual-memory-hcl | called verbatim |
 | store (sense 2) | `bytes_to_hvp` | guhct-processor | called verbatim, vector kept |
-| potentiation / LTP | `hcl_comp(f, f)` | hcl-pure (COMP) | term composed with itself |
-| depression / LTD | `HCLMemory.decay` | virtual-memory-hcl | called verbatim with accessed set |
+| reinforcement | `hcl_comp(f, f)` | hcl-pure (COMP) | term composed with itself |
+| decay | `HCLMemory.decay` | virtual-memory-hcl | called verbatim with accessed set |
 | recall sense 1 | `HCLMemory.recall` | virtual-memory-hcl | called verbatim, used as ranking |
 | recall sense 2 | `bytes_to_hvp` params + L1 | guhct-processor | integer distance over 8 params |
 | recall fusion | rank-sum | (arrangement) | add the two rank positions |
 | exact regeneration | `hvp_to_bytes` | guhct-processor | inverse path, verify=True |
 | signature | `HCLMemory.signature` | virtual-memory-hcl | called verbatim |
-| recompose | `hcl_comp` accumulation | hcl-pure + vm internals | rebuild composite after LTP |
+| recompose | `hcl_comp` accumulation | hcl-pure + vm internals | rebuild composite after reinforcement |
 | integrity | `ALPHA_INV` both engines | all three | compare to 137 |
 
 The only rows marked "(arrangement)" are rank-sum fusion and the ordering of
 calls. No arrangement introduces arithmetic outside the source primitives.
 
-## Why LTP Must Be COMP, Not store
+> [!NOTE]
+> **Metaphor Transparency:** In this document, terms like **potentiation / LTP** and **depression / LTD** are used as descriptive metaphors for the underlying reinforcement and decay operations.
+
+## Why Reinforcement Must Be COMP, Not store
 
 `store` appends a new braid term. Calling it repeatedly to "reinforce" creates
 duplicate terms — the memory population balloons (8 → 13 → 23 → …) and recall
 returns the same key many times. That is modulating the system from outside.
 
-The correct potentiation is already in `hcl-pure`: COMP of two FBits in the
+The correct reinforcement is already in `hcl-pure`: COMP of two FBits in the
 same phase sector is **constructive interference** — the amplitudes add and the
 phase is preserved. Composing a term with **itself** therefore strengthens that
 exact trace in place: amplitude grows, phase_frac unchanged, no new term, the
-braid population stays constant. This is LTP expressed in the substrate's own
+braid population stays constant. This is reinforcement expressed in the substrate's own
 operation. Decay (SHIFT by η, already in `virtual-memory-hcl`) is the matching
-LTD. Together they are the experience-tuning loop, built from parts that existed.
+operation. Together they are the experience-tuning loop, built from parts that existed.
 
 ## Why Two Senses, Both Topological
 
