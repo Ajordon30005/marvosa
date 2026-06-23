@@ -22,7 +22,7 @@ was violated and what broke), and it is the framework's core law: compose, never
 | Checkpoint | `to_expression()` → one α-tagged line; `from_expression()` verifies or rejects | engine/hcl_memory.py |
 
 > [!NOTE]
-> **Terminological Note:** In conceptual architectural discussions, the self-reinforcement of walked paths is sometimes referred to by the neuroscience metaphor "Long-Term Potentiation" (LTP). In this operational specification, it is strictly defined as the `COMP(term, term)` self-superposition operation.
+> **Metaphor Transparency:** In conceptual architectural discussions, the self-reinforcement of walked paths is sometimes referred to by the neuroscience metaphor **LTP** (Long-Term Potentiation). In this operational specification, it is strictly defined as the `COMP(term, term)` self-superposition operation.
 
 ## The persistence philosophy
 

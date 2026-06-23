@@ -43,12 +43,12 @@ If the same transition is taught again, it is **not** re-stored (duplicates woul
 It is reinforced in place — via **self-superposition reinforcement** — by the engine's own self-superposition:
 
 ```python
-g = hcl_comp(f, f)          # self-superposition reinforcement = COMP(term, term): 
+g = hcl_comp(f, f)          # reinforcement = COMP(term, term): 
                             # the wave constructively interferes with itself; amplitude grows
 ```
 
 > [!NOTE]
-> **Metaphor Transparency:** In high-level architectural documentation, this self-superposition reinforcement is sometimes referred to as "Long-Term Potentiation" (LTP). This is a descriptive metaphor for conceptual clarity; the actual operational specification is strictly the `COMP(term, term)` reinforcement described above.
+> **Metaphor Transparency:** In high-level architectural documentation, this reinforcement is sometimes referred to by the neuroscience metaphor **LTP** (Long-Term Potentiation). This is a descriptive metaphor for conceptual clarity; the actual operational specification is strictly the `COMP(term, term)` reinforcement described above.
 
 One subtlety (docs/05, ghost-key rule): "already known" is computed from the **live** term
 store, not the signature registry — because decay prunes terms but leaves registry ghosts, and a
@@ -139,7 +139,7 @@ sampled. Same pond, same question, same answer.
 ```python
 continuation = best_key.split('>', 1)[1]         # next word, read from the braid-space key
 ...
-self.memory.reinforce(key)                       # Reinforce: the used trace gets louder
+self.memory.reinforce(key)                       # reinforcement: the used trace gets louder
 ```
 
 The next word is read straight from the winning key (its braid-space record `w{d}|ctx>next`) — no
@@ -151,7 +151,7 @@ mid-sentence (a splice) — and why the splice is the composition.
 Reinforcement is the engine's own `reinforce` (self-superposition = `COMP(term, term)`), applied to the trace that
 produced the token — so using a path makes it louder. The composite Ψ is only what a read of the
 signature recomposes; recall in Step 3 walks the live traces directly, so generation never waits on
-a full recomposition. Forgetting (the balancing LTD metaphor) is a separate lived cycle, Step 6.
+a full recomposition. Forgetting (the balancing **LTD** metaphor) is a separate lived cycle, Step 6.
 
 ### Step 5 — Knowing when to stop (`generate`, read off the substrate)
 

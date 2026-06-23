@@ -376,17 +376,7 @@ inspection of the lowest-level operations.
 In Marvosa, the "neurons" and "synapses"
 of standard AI are replaced by three
 pure-integer operations acting on the FBit
-(Fixed-point Bit) wave structures. These
+(Fixed-point Bits) wave structures. These
 are not approximations; they are exact
 algebraic functions that govern the entire
 field.
-
-The first operation is COMP (Composition). This is the fundamental act of superposition. Two waves are interfered, and the result is a new wave whose phase and amplitude are the deterministic product of the inputs. This is how memories are superposed and how resonance is measured.
-
-The second operation is SHIFT. This is the mechanism of decay and phase rotation. It is used to implement the LTD metaphor, halving the amplitude of unaccessed traces to ensure the pond remains coherent and responsive to new experience.
-
-The third operation is AMP_MOD (Amplitude Modulation). This is used for fine-grained tuning of trace loudness, ensuring that the self-tuning weight dynamics can accurately reflect the coherence of the current context.
-
----
-
-(The rest of the document remains unchanged, focusing on the schooling arc and verification results.)

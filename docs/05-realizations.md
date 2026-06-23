@@ -39,7 +39,7 @@ replaying a transcript — memory here is lived, not loaded. A raw-text log (the
 transparency record only; it is never read back as memory.
 
 ## The ghost-key rule: forgetting must stay re-learnable
-Decay (LTD metaphor) prunes traces from the live store. "Already known" must be computed from the **live** term
+Decay prunes traces from the live store. "Already known" must be computed from the **live** term
 store, not a signature registry — a registry can retain ghosts of pruned traces, and treating a
 ghost as known silently blocks re-learning. What is forgotten must be learnable again.
 
@@ -59,13 +59,13 @@ Collapse Weight / Complexity Depth"). It self-tunes by the theory's own law, `dw
 coherent context drills deeper, incoherent context collapses toward a shallower attractor. Do not
 impose a hardcoded `w_max` or a per-trace amplitude ceiling — either one contradicts that equation
 and blocks the deep band the dynamics are meant to reach. Amplitude balance is already governed by
-the substrate: self-reinforcement (`COMP(term, term)`) raises a walked trace, decay (`SHIFT` by η) fades an unwalked
+the substrate: reinforcement (`COMP(term, term)`) raises a walked trace, decay (`SHIFT` by η) fades an unwalked
 one, and MCL collapse fires at `I_w < ε_w`. The winner-takes-all ratios are a consequence of those
 operations, not of any external clamp. The number rising or falling tracks the complexity being
 processed; a lower number caused by the system being run on simpler input is correct, not a fault.
 
 > [!NOTE]
-> **Metaphor Transparency:** Terms like LTP (Long-Term Potentiation) and LTD (Long-Term Depression) are descriptive metaphors for the underlying `COMP` and `SHIFT` operations. They are used in documentation for conceptual clarity but are not part of the operational specification.
+> **Metaphor Transparency:** Terms like **LTP** (Long-Term Potentiation) and **LTD** (Long-Term Depression) are descriptive metaphors for the underlying `COMP` and `SHIFT` operations. They are used in documentation for conceptual clarity but are not part of the operational specification.
 
 ## Teaching: feed, do not tune
 Training is inherent — generation reinforces the traces it walks, and the dw/dt dynamics self-tune.
