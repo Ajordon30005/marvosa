@@ -2,7 +2,7 @@
 
 The fastest way to evaluate this repository is to run it. This document maps common objections to
 the exact command that resolves each one, so you can verify the specific point you care about
-directly. If you do nothing else, run `./test_all.sh`.
+directly. If you do nothing else, run `sh verify_repo.sh` — the WHOLE repository, one go.
 
 The single rule of this repository: **it only claims what it can run in front of you.** The wider
 theory is linked at its source; nothing here asks you to believe the theory. It asks you to execute
@@ -87,6 +87,26 @@ The framing is pedagogy; the falsifiable claims are these, and each has a kill-s
   zero SPLICE/COMPOSED verdicts.
 
 If any kill-switch trips, the repo is wrong and you have proven it. That is what falsifiable means.
+
+### "A pure-integer 'substrate' obviously can't run — let alone train — a real neural network."
+
+It does both, and the bar is the harshest available: the model's own reference implementation.
+
+```bash
+python3 verify_chatmodel.py    # a REAL trained model (karpathy stories260K, bundled) generates
+                               # TOKEN-EXACT against its own run.c at temperature 0 — every
+                               # forward op an HCL primitive, α-checked per token
+python3 verify_learn.py        # exact-gradient training: all 260,032 gradients match a float64
+                               # mirror to ~4e-15; loss descends in lockstep; the trained model
+                               # persists as a NEW α-tagged line and keeps the learning
+python3 verify_livemodel.py    # training ∪ inference as ONE event: repetition through the plain
+                               # chat loop teaches it a fact, and the fact survives save/wake
+python3 verify_fastpath.py     # and the engine's fast paths are BIT-IDENTICAL to the composed
+                               # primitive forms (20,000+ pairs, all edges)
+```
+
+**Kill-switches:** a single differing token vs `run.c`; a gradient off the mirror; a loss that
+doesn't descend; an α reading that isn't 137. Any one falsifies the claim.
 
 ---
 

@@ -23,9 +23,18 @@ Laws inherited unchanged from all three skills:
   Rule 6: content travels in the braid word (so regeneration is exact)
 """
 
+import sys as _sys, os as _os
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_os.path.join(_HERE, "..", "virtual-memory-hcl", "scripts"),
+           _os.path.join(_HERE, "..", "guhct-processor", "scripts"),
+           _os.path.join(_HERE, "..", "hcl-pure", "scripts"), _HERE):
+    _p = _os.path.abspath(_p)
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
+
 import sys
-sys.path.insert(0, '/mnt/skills/user/guhct-processor/scripts')
-sys.path.insert(0, '/mnt/skills/user/virtual-memory-hcl/scripts')
+# sibling engines resolve RELATIVE to this bundle (bootstrap above) — never
+# via machine-specific absolute paths
 
 # --- parts taken verbatim from the source skills (never reimplemented) ---
 import hcl_memory as VM

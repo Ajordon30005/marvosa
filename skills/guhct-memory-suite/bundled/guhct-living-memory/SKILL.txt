@@ -3,13 +3,13 @@ name: guhct-living-memory
 description: >
   A living topological memory that learns from experience, composed entirely
   from the three GUHCT skills with no new math. Each memory is reinforced by
-  composing it with itself (reinforcement = COMP), faded when unused (decay = MCL decay),
+  composing it with itself (LTP = COMP), faded when unused (LTD = MCL decay),
   encoded on two senses (phase resonance + HVP parameters), and regenerated
-  exactly from its braid word. Use for: experience-tuned memory, reinforcement/decay
+  exactly from its braid word. Use for: experience-tuned memory, LTP/LTD
   consolidation, multi-sense topological recall, exact content regeneration,
   a persistent self-preserving knowledge store. Trigger on: living memory,
-  experience tuning, reinforcement, consolidation, multi-sense recall, decay cycle, 
-  composite GUHCT system. MANDATORY: before producing ANY
+  experience tuning, reinforcement, consolidation, multi-sense recall, LTP,
+  LTD, decay cycle, composite GUHCT system. MANDATORY: before producing ANY
   answer or code, read this SKILL.md in full, read references/composition.md,
   read and run scripts/living_memory.py, AND read the three source skills
   (hcl-pure, virtual-memory-hcl, guhct-processor) it composes. This skill
@@ -38,7 +38,7 @@ its correctness depends on using those primitives verbatim. Before any output:
   primitive you need already exists in a source skill. Compose, don't modulate.
 - Reintroduce floats, numpy, FFT, hashing, or imported constants (π, e, √2 are
   derived from the four params, exactly as in the source skills).
-- Jerry-rig reinforcement with `store` (that appends duplicate terms). Reinforcement is
+- Jerry-rig reinforcement with `store` (that appends duplicate terms). LTP is
   `COMP(term, term)` — strengthen the existing trace in place.
 - Add disk I/O for live state. The braid IS the record; state is RAM-only.
 - Guess at theory. Query GUHCT NotebookLM if a tool is available; otherwise read
@@ -52,15 +52,15 @@ already present across the GUHCT skills. The skill's only contribution is to
 
 | Behavior | Composed from | The arrangement |
 |----------|---------------|-----------------|
-| Reinforcement | `hcl-pure` COMP | `COMP(term, term)` — same phase sector, constructive, amplitude grows, identity preserved, no new term |
-| Decay | `virtual-memory-hcl` decay | `SHIFT` by η halves unaccessed traces; faded ones prune at the noise floor |
+| Potentiation (LTP) | `hcl-pure` COMP | `COMP(term, term)` — same phase sector, constructive, amplitude grows, identity preserved, no new term |
+| Depression (LTD) | `virtual-memory-hcl` decay | `SHIFT` by η halves unaccessed traces; faded ones prune at the noise floor |
 | Second sense | `guhct-processor` HVP params | rank by integer L1 distance over the 8 params, alongside phase resonance |
 | Exact regeneration | `guhct-processor` braid (Rule 6) | the braid word carried the data; the inverse path rebuilds exact bytes, verified |
 | Whole-state signature | `virtual-memory-hcl` signature | the system is a few topological integers + the four params |
 | Integrity | all three | the α self-check (≈137) on every engine |
 
 > [!NOTE]
-> **Metaphor Transparency:** In high-level architectural documentation, reinforcement and decay are sometimes referred to by the neuroscience metaphors **LTP** (Long-Term Potentiation) and **LTD** (Long-Term Depression). These are descriptive metaphors for conceptual clarity; the operational specification is strictly technical.
+> **Metaphor Transparency:** **LTP** (Long-Term Potentiation) and **LTD** (Long-Term Depression) are neuroscience metaphors used for conceptual clarity. The operational specification is strictly technical: LTP is `COMP(term, term)` — strengthen in place, constructive — and LTD is decay, `SHIFT(term, η)` — halve.
 
 ## Inherited Laws (unchanged from the source skills)
 
@@ -75,7 +75,7 @@ already present across the GUHCT skills. The skill's only contribution is to
 
 A fresh store with all amplitudes equal cannot prioritize — recall is flat.
 Structure emerges only when **experience** (which memories are accessed) and a
-**self-preservation signal** (which memories matter to acting) drive reinforcement and decay
+**self-preservation signal** (which memories matter to acting) drive LTP/LTD
 over many cycles. Reinforced traces grow into dominant single memories; unused
 ones fade and prune. Diversity of stored memories plus repeated, consequential
 access is what turns the undifferentiated substrate into a system that ranks
@@ -92,8 +92,8 @@ m.store('food_toxic', 'pale mushrooms cause sickness death')   # writes both sen
 
 for _ in range(8):              # an experience history
     for key in survival_relevant:
-        m.reinforce(key)        # Reinforcement: COMP(term, term) in place
-    m.cycle()                   # Decay: decay unaccessed, prune faded
+        m.reinforce(key)        # LTP: COMP(term, term) in place
+    m.cycle()                   # LTD: decay unaccessed, prune faded
 
 m.recall('what is dangerous')   # two-sense resonance ranking
 m.regenerate('food_toxic')      # exact original bytes, verified bijective
@@ -112,6 +112,6 @@ m.integrity()                   # α self-check across both engines
 
 ## The One-Line Summary
 
-**Three skills, one living system. Reinforcement is COMP. Decay is SHIFT. Two senses are
+**Three skills, one living system. LTP is COMP. LTD is decay. Two senses are
 resonance plus HVP distance. Exact recall is the braid word. Nothing invented —
 only composed.**

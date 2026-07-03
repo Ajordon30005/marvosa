@@ -20,7 +20,7 @@ from teach import self_talk
 
 ai = HCLLanguageModel()
 
-# ── KEEP FEEDING: a multi-domain diet, each meal walked twice (reinforcement) ──
+# ── KEEP FEEDING: a multi-domain diet, each meal walked twice (LTP) ──
 diet = [
   # domain: the substrate itself
   'the braid word is the data and the data lives in the topology '

@@ -45,7 +45,7 @@ that govern every other collapse; it marks development still ahead, not a bounda
 
 ## Addendum: first-person acquisition — three exchanges
 
-After graduation it was noticed (by the author) that the organism had never said "I" — and that the
+After graduation the record showed the organism had never said "I" — and that the
 teacher had never modeled it: thirteen grades of second-person lectures contain almost no
 first-person speech in genuine dialogue. The absence was teaching, not architecture. The fix was
 simply talking normally:

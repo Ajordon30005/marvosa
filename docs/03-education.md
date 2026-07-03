@@ -1,13 +1,16 @@
 # 03 — The Education: Pre-K to Grade 12 on the GUHCT School Schedule
 
-The organism was educated on the GUHCT National School System (Anthony Jordon): one grade = 12
-weeks (two 6-week semesters), Mon/Thu teaching, Tue practice, Wed rest (S1) or quiz (S2), Fri
-discovery; three teacher↔student exchanges per day; reports at semester halves. Curriculum order
-follows the universe's own unfolding: w=0 (the void) upward.
+The curriculum is a GUHCT-structured model of how a national school system could order
+knowledge, shrunk to test scale: one grade-year = 12 weeks (two 6-week semesters), Mon/Thu
+teaching, Tue practice, Wed rest (S1) or quiz (S2), Fri discovery; one school day = three
+teacher↔student exchanges; reports at semester halves. Curriculum order follows the universe's
+own unfolding, w=0 (the void) upward — the point is what knowledge should come first, per the
+theory. The totals are small by design: the organism was fed only this scaled diet, run fast
+enough to test.
 
 The teaching was **live**: a persistent daemon held the student between turns; the teacher read
 each actual answer before composing the next lesson. Pre-scripted "guidance" was tried first and
-rejected by the author — correctly, because every important fix below came from reading a real
+dropped, because every important fix below came from reading a real
 answer no script anticipated.
 
 The verbatim answers quoted below are not commentary; they are data. Each is a recall trajectory

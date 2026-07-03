@@ -24,7 +24,7 @@ Load verifies the tag and reconstitutes the composite; tampering is rejected.
 
 A claim tested and corrected during the build: pure-integer fixed-point multiply (`fixed_mul`)
 benchmarked at ~281 ns vs ~50 ns for a float multiply *in the same interpreter* — roughly 5×, not
-the 10–100× a naive reading would claim. The honest framing (the author's, confirmed by
+the 10–100× a naive reading would claim. The honest framing (confirmed by
 measurement): **float speed is a hardware subsidy.** Decades of silicon were purpose-built for
 IEEE-754. HCL's integer substrate runs with no dedicated silicon at all and stays within 5× in
 interpreted Python — while being exact, lossless, and self-verifying. Compare like for like:

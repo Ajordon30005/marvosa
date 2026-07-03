@@ -9,8 +9,8 @@ three skills; this module COMPOSES them into one living system:
   guhct-processor     -> bijective HVP transducer (exact content regeneration)
 
 What the composite adds is ARRANGEMENT, not parts:
-  * reinforcement       = COMP(term, term)        reinforce a trace IN PLACE
-  * decay               = SHIFT by eta            fade unaccessed traces
+  * potentiation (LTP)  = COMP(term, term)        reinforce a trace IN PLACE
+  * depression  (LTD)   = decay (SHIFT by eta)    fade unaccessed traces
   * two senses          = phase-resonance (vm) + HVP-param distance (processor)
   * exact recall        = braid word kept per memory -> regenerate exact bytes
 
@@ -49,7 +49,7 @@ class LivingMemory:
         self.vm       = VM.HCLMemory()   # sense 1: phase/resonance store (skill 2)
         self.hvp      = {}               # sense 2: key -> HVP param vector (skill 3)
         self.sigs     = {}               # key -> full HVP signature (for exact recall)
-        self.accessed = set()            # keys touched this cycle (for decay)
+        self.accessed = set()            # keys touched this cycle (for LTD)
 
     # ── store: write to both senses; keep braid for exact regeneration ──
     def store(self, key, text):
@@ -59,9 +59,9 @@ class LivingMemory:
         self.hvp[key]  = [sig['params'][p] for p in sig['params']]  # sense 2 vector
         return self.signature()
 
-    # ── reinforcement: reinforce IN PLACE by COMPOSING the term ──
+    # ── potentiation (LTP): reinforce IN PLACE by COMPOSING the term ──
     def reinforce(self, key):
-        """Reinforce = COMP(term, term). Same phase sector -> constructive ->
+        """LTP = COMP(term, term). Same phase sector -> constructive ->
         amplitude grows, identity preserved, NO new term. Pure skill-1 COMP."""
         for t in self.vm._terms:
             if t['content_key'] == key:
@@ -71,7 +71,7 @@ class LivingMemory:
         self.accessed.add(key)
         self._recompose()
 
-    # ── decay: fade unaccessed via the engine's own decay ──
+    # ── depression (LTD): fade unaccessed via the engine's own decay ──
     def cycle(self):
         """One experience cycle: reinforced traces already grew; everything
         not accessed this cycle halves (SHIFT by eta), faded ones prune.
@@ -151,8 +151,8 @@ def _demo():
     lived = {'fire_danger', 'water_safe', 'food_berry', 'food_toxic', 'shelter_cave'}
     for c in range(1, 9):
         for k in lived:
-            m.reinforce(k)         # reinforcement via COMP
-        m.cycle()                  # decay via SHIFT
+            m.reinforce(k)         # LTP via COMP
+        m.cycle()                  # LTD via decay
     print("after 8 lived cycles:")
     print("  live keys:", m.live_keys())
     a = m.amplitudes()

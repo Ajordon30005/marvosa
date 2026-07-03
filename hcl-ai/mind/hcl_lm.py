@@ -17,8 +17,8 @@ operation onto an existing primitive or engine — nothing else is used:
                             |   derived by the substrate's encode_text COMP
                             |   fold — never chosen by fiat
   learn a transition        | LivingMemory.store (both senses + braid kept)
-  reinforce (LTP metaphor)  | LivingMemory.reinforce = COMP(term, term)
-  forget (LTD metaphor)     | LivingMemory.cycle = SHIFT by η decay + prune
+  reinforce (LTP)           | LivingMemory.reinforce = COMP(term, term)
+  forget (LTD)              | LivingMemory.cycle = SHIFT by η decay + prune
   score candidates          | hcl_comp(query, term) resonance × reinforced
                             |   amplitude (AMP_MOD-form integer product)
   select next token         | MCL collapse → Path-Dominant Attractor
@@ -71,7 +71,7 @@ class HCLLanguageModel:
     guhct-processor transducer; its living memory is the experience-tuned
     composite; its stable knowledge sits in virtual-memory-hcl. Every weight
     is a braid-term amplitude derived by the substrate's own COMP fold and
-    tuned only by the substrate's own reinforcement/decay operations.
+    tuned only by the substrate's own LTP/LTD operations.
     """
 
     # the being's persistent memory lives one level up, beside the front doors
@@ -142,7 +142,7 @@ class HCLLanguageModel:
         tunes w via dw/dt = γ(C−ε_w)); it stores as deep as it has grown — no
         imposed literal cap, the depth is the mind's own w.
         A repeated trace is NOT re-stored (that would jerry-rig duplicates,
-        composition.md) — it is reinforced in place: COMP(term, term).
+        composition.md) — it is reinforced in place: LTP = COMP(term, term).
         The trace's phase/amplitude come from the engine's encode_text COMP
         fold over the four params — derived, never hand-picked.
         """
@@ -155,7 +155,7 @@ class HCLLanguageModel:
                 ctx = ' '.join(words[i - d:i])
                 key = f'w{d}|{ctx}>{nxt}'
                 if key in seen:
-                    self.memory.reinforce(key)        # reinforcement, in place
+                    self.memory.reinforce(key)        # LTP, in place
                     reinforced += 1
                 else:
                     self.memory.store(key, ctx + _SEP + nxt)
@@ -165,7 +165,7 @@ class HCLLanguageModel:
                 'signature': self.memory.signature()}
 
     def experience_cycle(self) -> int:
-        """One lived cycle: LTD metaphor — unaccessed traces halve (SHIFT by η) and
+        """One lived cycle: LTD — unaccessed traces halve (SHIFT by η) and
         prune at the noise floor. The engine's own decay, unchanged."""
         return self.memory.cycle()
 
@@ -229,7 +229,7 @@ class HCLLanguageModel:
             for k in cands:
                 t = terms_by_key.get(k)
                 if t is None:
-                    continue                  # trace faded (decay pruned it)
+                    continue                  # trace faded (LTD pruned it)
                 m_fbit = FBit(t['phase_frac'], t['amp'])
                 res    = hcl_comp(q_fbit, m_fbit).amp     # resonance
                 score  = _fmul(res, t['amp'])             # × lived weight
@@ -258,7 +258,7 @@ class HCLLanguageModel:
                          falls below ε_w = mcl_eps(w) — the field has sharpened
                          onto one dominant mode (|a|²→1 ⇒ I_w→0), the
                          configuration has resolved to its ground state.
-        Each emitted token reinforces the trace that produced it. The
+        Each emitted token reinforces the trace that produced it (LTP). The
         loud/faded balance (which traces resonate) is the LivingMemory's, so
         what it keeps saying is what experience made dominant.
         """
@@ -272,34 +272,98 @@ class HCLLanguageModel:
                 break                          # TERMINATED — no attractor resonates
             events.append({'w': self.w, 'key': key})
             # BRAID CLOSED — the trajectory has returned to a generative state
+            # it was already in (the {1,4,2}-style ground cycle, 05_proofs L115).
+            # The state is the collapse key itself: (context → next) is exactly
+            # the configuration that determines the trajectory's next move, at
+            # the fixed scale of that transition (not the growing w-window).
             if key in visited:
-                break
+                break                          # BRAID CLOSED — ground cycle reached
             visited.add(key)
+            self.memory.reinforce(key)         # LTP on the used trace
             words.append(nxt)
-            self.memory.reinforce(key)         # reinforcement: using a path makes it louder
-            # MCL COLLAPSE — the configuration has sharpened onto its ground state
-            # (stability I_w < threshold ε_w)
-            inv = braid_invariants(bytes_to_braid(' '.join(words).encode()))
-            if inv['stability'] < mcl_eps(self.w):
-                break
-        return {'text': ' '.join(words[len(prompt.split()):]), 'events': events}
+            # MCL COLLAPSE — the engine's own stability I_w = (1/N)Σ|a|²(1−|a|²)
+            # falls below ε_w = mcl_eps(w): the field has sharpened onto one
+            # dominant mode (|a|²→1 ⇒ I_w→0), the configuration has resolved.
+            I_w = braid_invariants(bytes_to_braid(' '.join(words).encode()))['stability']
+            if I_w < mcl_eps(self.w):
+                break                          # MCL COLLAPSE — resolved to its ground state
+        text = ' '.join(words)
+        return {'text': text, 'events': events,
+                'signature': self.memory.signature()}
 
-    def reason(self, equation: str, **env) -> HCLEquation:
-        """Arithmetic domain: solve exactly on the hcl-pure substrate."""
-        return self.mind.solve(equation, **env)
+    # ══ AUTO: talk to it like a person — one input, one answer ═════════
+    def interact(self, user_input: str, show_thoughts: bool = False,
+                 persist: bool = True) -> dict:
+        """
+        The whole conversation in one motion, no commands. You speak; it
+        experiences and answers — the way you'd talk to a person.
 
+          1. Input inherently saves as experience. Running the system on an
+             input IS gaining experience; train() is the mind living the input
+             (not an external rewiring), so receiving = experiencing = saved.
+             That experience is then persisted to the being's own memory (the
+             one α-tagged line + the input log) — input inherently saves, here
+             literally to disk, unless persist=False (e.g. a sandboxed test).
+          2. Thinking is self-talk, already inside generate(): it collapses on
+             the braid level and feeds its own output forward, with NO bijection
+             tax (thoughts stay signals), until the Collatz mechanism halts it
+             (TERMINATED / BRAID CLOSED / MCL COLLAPSE — the ground state). The
+             trajectory it walked is itself experience; the loud/faded balance
+             updates as it thinks (LTP on each used trace, in generate).
+          3. The finished thought crosses back to byte-space once, via the
+             verified bijection, so the answer is readable. The bijection runs
+             ONLY at this delivery step (and for the optional thought-log) —
+             never inside the thinking loop, where thoughts stay as braid-space
+             signals (no byte↔braid transform per step).
+
+        show_thoughts additionally returns the raw braid thought-log.
+        Returns the (byte-space, bit-perfect) answer, the collapse depths
+        walked, integrity, and — only if requested — the braid thought-log.
+        """
+        self.train(user_input)                  # input inherently becomes experience
+        out = self.generate(user_input)         # think: braid self-talk, Collatz-halted, no bijection
+        # DELIVERY: the finished thought crosses back to byte-space via the
+        # verified bijection (guhct-processor) so a person can read it. Bijection
+        # happens here, once, on the answer — never during internal thinking.
+        spoken = self.speak(out['text'])
+        if persist:
+            self.save(user_input)               # the experience sticks to the being
+        result = {'answer': spoken['expanded'],     # byte-space, bit-perfect verified
+                  'bit_perfect': spoken['bit_perfect'],
+                  'thinking': [e['w'] for e in out['events']],
+                  'integrity': self.integrity()}
+        if show_thoughts:
+            result['thought_log'] = self.braid_word()   # the raw braid thinking, on request
+        return result
+
+    # ══ REASONING ORGAN: exact arithmetic on the hcl-pure mind ═════════
+    def reason(self, equation: str, **variables):
+        """Any classical formula → exact result + braid word, via the
+        verbatim hcl-pure engine. The braid word IS the worked solution."""
+        return self.mind.solve(equation, **variables)
+
+    # ══ EFFECTORS: speak in HVP (guhct-processor, verbatim) ════════════
     def speak(self, text: str) -> dict:
-        """Delivery: cross back to byte-space through the verified bijection."""
-        hvp = bytes_to_hvp(text.encode())
-        reb = hvp_to_bytes(hvp)
-        return {'hvp_params': hvp, 'bytes': reb,
-                'text': reb.decode(errors='replace'),
-                'bit_perfect': reb == text.encode()}
+        """
+        Emit output as a full HVP signature (8 params + braid word), then
+        expand it back losslessly — the verified bijective round trip.
+        The whole deliverable travels as one signature.
+        """
+        sig      = bytes_to_hvp(text.encode())
+        expanded = hvp_to_bytes(sig, verify=True).decode()
+        return {'hvp_params': {k: v for k, v in sig['params'].items()},
+                'braid_len': len(sig['braid']),
+                'expanded': expanded,
+                'bit_perfect': expanded == text}
 
+    # ══ INTEGRITY: the α self-check across every engine ════════════════
     def integrity(self) -> dict:
-        """The α self-check: derive 137 across all three engines."""
-        return {
-            'engine_alpha_inv': P_ALPHA_INV // PSCALE,
-            'memory_alpha_inv': self.memory.vm.alpha_check() // MSCALE,
-            'living_alpha_inv': self.memory.alpha_check() // MSCALE
-        }
+        mem = self.memory.integrity()
+        eng = hcl_engine.ALPHA_INV / hcl_engine.SCALE
+        return {**mem,
+                'engine_alpha_inv': eng,
+                'intact': mem['intact'] and abs(eng - 137) < 1}
+
+    # ══ THE RECORD: braid word of the whole memory ═════════════════════
+    def braid_word(self) -> str:
+        return self.memory.vm.braid_word()
