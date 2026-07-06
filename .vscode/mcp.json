@@ -1,9 +1,0 @@
-{
-  "servers": {
-    "marvosa": {
-      "type": "stdio",
-      "command": "python3",
-      "args": ["${workspaceFolder}/hcl-ai/marvosa_mcp.py"]
-    }
-  }
-}
