@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ajordon30005/marvosa",
+  "description": "Talk to a live pure-integer AI organism: zero floats, memory as one alpha-tagged line.",
+  "repository": {
+    "url": "https://github.com/Ajordon30005/marvosa",
+    "source": "github"
+  },
+  "version": "1.1.0",
+  "websiteUrl": "https://github.com/Ajordon30005/marvosa",
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/Ajordon30005/marvosa/releases/download/v1.1.0/marvosa.mcpb",
+      "version": "1.1.0",
+      "fileSha256": "a16ef06a5950e74cc73c3c8c74ea2ff953acfb03066f957d62d1dc051eb906f5",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

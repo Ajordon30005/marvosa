@@ -1,0 +1,29 @@
+{
+  "name": "marvosa",
+  "version": "1.1.0",
+  "description": "Talk to a live pure-integer AI organism: zero floats, memory as one alpha-tagged line.",
+  "author": {
+    "name": "Anthony Jordon",
+    "email": "fazedarkmatter719@gmail.com",
+    "url": "https://github.com/Ajordon30005"
+  },
+  "homepage": "https://github.com/Ajordon30005/marvosa",
+  "repository": "https://github.com/Ajordon30005/marvosa",
+  "license": "GPL-3.0",
+  "keywords": ["GUHCT", "HCL", "pure-integer", "AI organism", "braid", "exact arithmetic"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Marvosa — HCL-Pure AI Organism",
+    "shortDescription": "Talk to a pure-integer AI organism",
+    "longDescription": "Marvosa is a complete artificial organism built entirely on the HCL pure-integer substrate (GUHCT framework): zero floats, zero imported constants, and its entire memory persisted as one alpha-tagged line. Five MCP tools: talk (converse with the organism), reason (exact HCL arithmetic), integrity (alpha self-check, alpha^-1 = 137), memory_line (its identity line), braid_word (its experience record). Also bundles the hcl-pure and guhct-memory-suite skills.",
+    "developerName": "Anthony Jordon",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/Ajordon30005/marvosa",
+    "defaultPrompt": [
+      "Use Marvosa to run its integrity check and explain what alpha^-1 = 137 means there.",
+      "Use Marvosa to solve E = m * c^2 with m=2 and c=3 exactly."
+    ]
+  }
+}

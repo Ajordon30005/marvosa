@@ -1,0 +1,13 @@
+{
+  "name": "marvosa",
+  "version": "1.1.0",
+  "description": "Talk to a live pure-integer AI organism (GUHCT/HCL substrate): zero floats, zero imported constants, memory as one alpha-tagged line. Tools: talk, reason (exact arithmetic), integrity, memory_line, braid_word.",
+  "mcpServers": {
+    "marvosa": {
+      "command": "python3",
+      "args": ["${extensionPath}${/}hcl-ai${/}marvosa_mcp.py"],
+      "cwd": "${extensionPath}"
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}
