@@ -112,8 +112,12 @@ class LivingStandardModel:
         e = self.e = self.m.eng
         tok = self.m.tok
         user_toks = tok.encode(user_input, bos=(self._pos == 0))
-        if self._pos + len(user_toks) + 8 >= self.c_seq():
-            self._reroot()
+        if self._pos + len(user_toks) >= self.c_seq():
+            # the incoming tokens cannot fit before the model's own capacity
+            # — re-root on the transcript tail. No margin constant: the
+            # trigger and the tail are both derived from seq_len and the
+            # actual input, nothing else.
+            self._reroot(len(user_toks))
             user_toks = tok.encode(user_input, bos=(self._pos == 0))
 
         t0 = time.time()
@@ -186,12 +190,15 @@ class LivingStandardModel:
             out['saved'] = self.save(user_input)
         return out
 
-    def _reroot(self):
+    def _reroot(self, incoming: int = 0):
         """At the model's own capacity boundary: reset the KV session and
-        re-perceive the transcript tail so the conversation continues."""
+        re-perceive as much of the lived transcript as the model's own
+        seq_len leaves room for, given the incoming tokens — the tail size
+        is derived, not chosen."""
         self.m.reset()
         self._pos, self._cur = 0, None
-        tail = self.transcript[-(self.c_seq() // 2):]
+        keep = self.c_seq() - incoming - 1
+        tail = self.transcript[-keep:] if keep > 0 else []
         for t_ in tail:
             if self._cur is not None:
                 self.m.forward(self._cur, self._pos)
