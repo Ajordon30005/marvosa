@@ -1,0 +1,9 @@
+{
+    "mcpServers": {
+          "marvosa": {
+                  "command": "python3",
+                  "args": ["/path/to/marvosa/hcl-ai/marvosa_mcp.py"],
+                  "env": {}
+          }
+    }
+}

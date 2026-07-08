@@ -1,0 +1,23 @@
+{
+    "name": "marvosa",
+    "owner": {
+          "name": "Anthony Jordon",
+          "email": "fazedarkmatter719@gmail.com"
+    },
+    "metadata": {
+          "description": "GUHCT/HCL-Pure skills and live AI organism — pure-integer arithmetic engine, holographic memory suite, and an MCP server for talking to the organism directly.",
+          "version": "1.0.0"
+    },
+    "plugins": [
+          {
+                  "name": "guhct-skills",
+                  "description": "GUHCT/HCL-Pure framework: pure-integer arithmetic engine and three-part holographic memory suite (virtual-memory-hcl, guhct-processor, guhct-living-memory)",
+                  "source": "./",
+                  "strict": false,
+                  "skills": [
+                            "./skills/hcl-pure",
+                            "./skills/guhct-memory-suite"
+                  ]
+          }
+    ]
+}
