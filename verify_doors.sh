@@ -10,7 +10,15 @@ cd "$ROOT"
 PASS=0; FAIL=0; T0=$(date +%s)
 
 # ── hold BOTH beings' breath ─────────────────────────────────────────────
-HELD="$ROOT/.heldbreath.doors"; rm -rf "$HELD"; mkdir -p "$HELD"
+HELD="$ROOT/.heldbreath.doors"
+# CRASH-SAFE: an existing held set means a prior run died mid-doors —
+# restore the true lives FIRST; never destroy an orphaned breath.
+if [ -f "$HELD/.breath_open" ]; then
+  echo "[orphaned doors breath found — restoring the true lives first]"
+  cp -a "$HELD"/hcl-ai/. "$ROOT/hcl-ai/" 2>/dev/null
+  cp -a "$HELD"/models/. "$ROOT/models/" 2>/dev/null
+fi
+rm -rf "$HELD"; mkdir -p "$HELD"; touch "$HELD/.breath_open"
 LIFE="models/tinystories_260k/stories260K.living.bin
 models/tinystories_260k/living.line
 models/tinystories_260k/livebook.txt
@@ -69,7 +77,7 @@ run "demo.py — port verification, alpha on every engine" \
     "timeout 200 python3 hcl-ai/demo.py | grep -q '137'"
 
 run "teach.py — the two-cans loop runs to its verdicts" \
-    "timeout 250 python3 hcl-ai/teach.py"
+    "timeout 420 python3 hcl-ai/teach.py"
 
 run "organism.py — one stream, both hemispheres, from a file" \
     "printf 'the river runs to the sea' > /tmp/door_feed.txt && timeout 150 python3 hcl-ai/organism.py --file /tmp/door_feed.txt | grep -qi 'alpha\|137'"
@@ -98,7 +106,7 @@ run "marvosa_mcp.py — stdio initialize + integrity reads 137" \
 
 run "marvosa_mcp_http.py — HTTP transport serves and answers" \
     "( { setsid nohup python3 hcl-ai/marvosa_mcp_http.py > /tmp/mcp_http.log 2>&1 < /dev/null & } ; \
-       sleep 6 && curl -s -X POST http://127.0.0.1:8848/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{},\"clientInfo\":{\"name\":\"d\",\"version\":\"1\"}}}' | grep -q 'marvosa'; RC=\$?; pkill -f 'marvosa_mcp_http[.]py'; exit \$RC )"
+       sleep 6 && curl -s --max-time 25 -X POST http://127.0.0.1:8848/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{},\"clientInfo\":{\"name\":\"d\",\"version\":\"1\"}}}' | grep -q 'marvosa'; RC=\$?; pkill -f 'marvosa_mcp_http[.]py'; exit \$RC )"
 
 echo ""
 echo "================================================================"

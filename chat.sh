@@ -5,6 +5,14 @@
 #
 #     ./chat.sh            # boots the graduate daemon (once), then live chat
 ROOT="$(cd "$(dirname "$0")" && pwd)"
+
+# PRECISION = THE WEIGHT SCALE (docs/10): unless the dial is set by
+# hand, the lattice defaults to the smallest one on which every stored
+# weight is exact — measured from the checkpoint itself.
+if [ -z "$MARVOSA_PREC" ] && [ -f "$ROOT"/models/tinystories_260k/stories260K.bin ]; then
+    MARVOSA_PREC=$(python3 "$ROOT"/hcl-ai/prec_of.py "$ROOT"/models/tinystories_260k/stories260K.bin 2>/dev/null)
+    export MARVOSA_PREC
+fi
 cd "$ROOT/hcl-ai"
 
 # start the daemon detached if it isn't already up

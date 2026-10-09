@@ -8,7 +8,8 @@
 **A complete artificial mind — memory, learning, language — built from four integers, zero floats, and zero imported constants. Every claim in this repository is backed by a logged result.**
 
 > **The fastest way to evaluate this is to run it.** [`SKEPTIC.md`](SKEPTIC.md) routes any common
-> objection straight to the command that settles it; or just run `./test_all.sh` and read your own
+> objection straight to the command that settles it; start with `./test_all.sh`, then let
+> `./verify_repo.sh` prove the rest of the stack in the same sitting — read your own
 > machine's numbers. Judge from execution, not from this page's vocabulary.
 
 > [!TIP]
@@ -19,6 +20,7 @@
 > python3 verify_learn.py        # TRAIN it on the substrate — exact gradients, four-param optimizer
 > ./live.sh                      # talk to it while it LEARNS — every turn is live experience
 > ./mind.sh                      # the THREE-PART MIND: it remembers, learns live, persists as two lines
+> python3 hcl-ai/voidborn.py birth && python3 hcl-ai/voidborn.py study 60   # BIRTH FROM THE VOID: three-state birth, the ignition curve
 > python3 verify_threemind.py    # its proof: windows ARE the weights; params ARE FBits; two lines wake
 > ```
 > The bundled model is karpathy's stories260K (genuinely trained, pulled from GitHub); every
@@ -46,20 +48,133 @@ at every checkpoint:
 
 ---
 
+## You are here — the three tiers (read this first)
+
+This repository is THREE distinct things stacked on one substrate. Know
+which one you are touching, because their tests, chats, and claims are
+different:
+
+**TIER 1 — the substrate, quickly proven (a lesser, fast demonstration).**
+`./test_all.sh` is the quick gate: no-floats scan, α-is-derived, tamper
+refusal, measured speed — minutes, and it is deliberately the SMALL test.
+`./chat.sh` is the matching quick chat: it wakes the educated graduate
+for a one-minute first contact. Neither is the full AI; they exist so a
+stranger can verify the ground and hear a voice in five minutes.
+Docs: [`docs/02`](docs/02-verification.md), [`docs/08`](docs/08-the-glass-box.md), [`SKEPTIC.md`](SKEPTIC.md).
+
+**TIER 2 — the HCL AI (the native mind, grown FROM the substrate).**
+No standard model anywhere: a language organism whose memory IS one
+α-tagged line, educated Pre-K→12 on the framework's own school system.
+Doors: `python3 hcl-ai/talk.py` (the being, waking from its own line),
+`hcl-ai/teach.py`, `hcl-ai/tutor.py`, `hcl-ai/organism.py`, `hcl-ai/ai.py`.
+Docs: [`docs/00`](docs/00-anatomy-of-a-thought.md)–[`docs/07`](docs/07-the-wider-theory.md).
+
+**TIER 3 — MST (Model Substrate Translation: STANDARD models on the substrate).**
+Real trained networks (the bundled stories260K; any llama2c/safetensors
+checkpoint) hosted, trained, and LIVING on the same integers — token-exact
+hosting proven against the model's own reference, live learning, the
+three-part mind, inherent weights, the interference head, the collapse
+calculator, and the MST equation — one generation step run as one
+calculator collapse. Doors: `./play.sh`, `./live.sh`, `./mind.sh`,
+`./calc.sh`, `./bootstrap_1b.sh`, `python3 hcl-ai/mst_equation.py`.
+Docs: [`docs/09`](docs/09-running-large-models.md)–[`docs/15`](docs/15-the-mst-equation.md).
+
+One sentence to keep: **Tier 1 proves the ground, Tier 2 is the mind the
+ground grew, Tier 3 is other minds carried onto the ground.** The master
+gate `./verify_repo.sh` proves all three in one run.
+
+## Working in this repo (humans and AIs alike)
+
+The repository is ONE composition, and it already contains the piece you
+are about to write. Before writing anything:
+
+1. **Read before you edit.** Open the actual file and read the region you
+   will touch — the map table below says where every capability lives.
+   Editing from memory of the file produces patches against text that is
+   not there.
+2. **Compose from the organs that exist.** New behavior is arrangement of
+   existing organs (`hcl-ai/engine/`, the runners, the memory line, the
+   calculator). If you find yourself writing a new sqrt, a new tokenizer
+   read, a new persistence format, or a new halting rule — stop; it
+   exists, and the map points to it.
+3. **No standard-Python stand-ins in any value path.** No floats, no
+   `math.*` constants, no numpy arithmetic where a computed VALUE flows —
+   the transcriber's integer ops are the only arithmetic. (numpy appears
+   in exactly one place: the calculator's vectorized ranking, whose
+   output is proven identical to the pure-integer loop and which falls
+   back to that loop when numpy is absent.)
+4. **The gate is the acceptance test — all of it.** `./verify_repo.sh`
+   runs 17 sections in one sitting (~28 minutes on a modest CPU) and
+   that one run is what "working" means here. The individual
+   `verify_*.py` files are the gate's internal organs; they exist so a
+   failure names its section, not so parts of the repo can be adopted or
+   proven in isolation.
+5. **Parameters are derived, never picked.** Widths, rates, initial
+   amplitudes, iteration counts — each traces to a law in
+   `skills/hcl-pure/references/` or a proof in `docs/`. A number without
+   a citation is a bug.
+
+---
+
+## Observation, not logging
+
+Five modes cover every way of watching this stack, and injected
+logging is never one of them. **Delivery**: the answer, decoded once
+at the boundary. **Counting** (`t.light()`): the braid counter, one
+increment per generator, nothing stored — the lawful meaning of
+"logged for speed." **Reading the glass box**: pull-based inspection
+of state that already exists — the pre-collapse logit field, phase
+and amplitude, the degenerate set, windows, the line, alpha
+re-derived; costs only the read, writes nothing. **Full trace**
+(`trace_full`): the braid word at generator resolution, the complete
+replayable thought — expensive by design, for proofs, never left on.
+**Performance measurement**: wall clock plus counter deltas around a
+region, receipts per row, no per-op printing (a print costs more
+than the op it reports). `logging.*` inside operator or token loops
+is a speed defect, and any log that feeds state is unlawful: memory
+is the line and the weights, and nothing sequential feeds state
+(docs/02 "Observation modes"; docs/12).
+
 ## Plug and play
 
-From a fresh download, three steps — no setup, no dependencies beyond Python 3:
+From a fresh download, three steps — no setup; Python 3 standard library only
+(numpy, when present, accelerates the calculator's ranking service and the
+calculator door; everything falls back to pure Python without it):
 
 ```bash
 unzip marvosa.zip
 cd marvosa
-./verify_repo.sh      # THE WHOLE REPO, one go: mechanical audit (every import, every doc ref,
-                      #   every runnable door smoked non-interactively, both beings' lives guarded),
-                      #   twins, configs) + the organism gate + the standard-model stack (run,
-                      #   train, live) + the MCP bundle — one summary, ~6 minutes
-./test_all.sh         # the organism gate alone: no-float scan, alpha-is-derived proof, tamper test, honest
+./verify_repo.sh      # THE WHOLE REPO, one go — 17 sections: mechanical audit (every import,
+                      #   every doc ref, every runnable door smoked, both beings' lives guarded),
+                      #   the organism gate, the full MST stack (run, train, live, mind, inherent,
+                      #   native head, calculator), the MCP bundle — one summary, ~28 minutes
+./test_all.sh         # the organism gate: no-float scan, alpha-is-derived proof, tamper test, measured
                       # benchmark, live composition demo, and both preflights — one pass/fail summary
 ```
+
+The 17 sections, in the order the gate runs them (times from a modest
+2-core CPU; the total is ~28 minutes because the whole repository is
+being proven, all three tiers, in the one sitting):
+
+| # | section | proves | ~time |
+|---|---------|--------|-------|
+| 1 | Mechanical audit | every `.py` imports, every `.sh` parses, every doc reference resolves, configs and twins agree | 25 s |
+| 2 | Organism gate (`test_all.sh`) | no floats, α derived, tamper refused, measured speed, live composition | 2 s |
+| 3 | Engine fast paths | thinned paths bit-identical to composed primitives | 1 s |
+| 4 | The compiled shell | same integers in a compiled body — bit-identical logits, identical counting, pure fallback | 1 min |
+| 5 | The body | holographic checkpoint carries bytes exactly | 1 s |
+| 6 | The nemotron runner | MCL selection and substrate halting on the ops port | 8 s |
+| 7 | A real model | stories260K hosted token-exact against its own run.c | 45 s |
+| 8 | Training | exact gradients, the four-parameter optimizer, the line evolves | 1.5 min |
+| 9 | Live unification | talking IS training; the being persists and wakes | 2 min |
+| 10 | Three-part mind | two lines, the window law, fold and revive | 6 min |
+| 11 | Inherent weights | the operator instantiates exact weights, zero training | 2 min |
+| 12 | The runner's head | DJ interference ≡ the FBit COMP chain; derived width; agreement printed | 1.5 min |
+| 13 | Collapse calculator | door answers, landing exact, no logging surfaces | 5 s |
+| 14 | HVP emission | one forward, whole artifact: exact address book, sha-exact files, zero streaming | 1 min |
+| 15 | The MST equation | one step == one collapse: sequence match, exact landing, certificate, no floats | 1 min |
+| 16 | Every door | all 15 runnable surfaces open; both beings' lives held and restored | 8–9 min |
+| 17 | MCP bundle | the packaged server initializes and answers 137.0 | 10 s |
 
 (If you cloned the repo instead of downloading the zip, skip the first two lines and run
 `./test_all.sh` from the repository root.)
@@ -98,8 +213,8 @@ Run any single check instead (each prints numbers computed on your machine):
 ./verify_no_floats.sh # grep the substrate: no floats in the math path
 ./verify_alpha.sh     # 137 is DERIVED from the four params, not stored (perturb-and-watch-it-move)
 ./verify_tamper.sh    # one digit changed in the checkpoint => load rejected
-./verify_speed.sh     # integer vs float multiply, same interpreter, honest ratio
-./verify_ai.sh        # the organism composes across lessons, and fails honestly
+./verify_speed.sh     # integer vs float multiply, same interpreter, one measured ratio
+./verify_ai.sh        # the organism composes across lessons; unknowns get a refusal, not an invention
 ```
 
 Every runner is pure wiring — it invokes the skills' and the AI's own entry points and reads their
@@ -157,7 +272,7 @@ This repository is the demonstration — **twice over, in two constructions on t
 
 The purpose of carrying both is the thesis itself: a true rosetta stone must speak the foreign
 language *natively and exactly*, not just its own. The skills in `skills/` are the substrate; the
-documents in `docs/` (00–12) are the evidence for both constructions.
+documents in `docs/` (00–15) are the evidence for both constructions.
 
 A second claim rides along, and the build kept confirming it: **the substrate is never the
 bottleneck.** Every failure encountered in this project — every slowdown, every wrong answer, every
@@ -182,9 +297,9 @@ reinforces, opposition cancels. And the native decision procedure is **MCL colla
 superposition must resolve, it collapses to the Path-Dominant Attractor — the configuration of
 minimum Möbius energy, the tallest peak in the interference pattern.
 
-On benchmark honesty, one measured result worth stating up front: pure-integer fixed-point multiply
+On the benchmark method, one measured result worth stating up front: pure-integer fixed-point multiply
 benchmarked at ~281 ns against ~50 ns for a float multiply in the same Python interpreter — about
-5×, not the 10–100× a naive comparison claims. The honest framing: **float speed is
+5×, not the 10–100× a naive comparison claims. The framing the numbers support: **float speed is
 a hardware subsidy.** Decades of silicon were purpose-built for IEEE-754 floats. The HCL substrate
 runs with no dedicated silicon at all, stays within 5× in an interpreted language, and is exact and
 self-verifying while doing it. Compare unsubsidized math to subsidized math, correctness guarantees
@@ -238,6 +353,7 @@ project (see §10).
 | `hcl-ai/engine/` | Verbatim transcriptions of the skill engines. Only `sys.path` glue differs from the skill sources. **No mechanism in these files was written for this project.** |
 | `hcl-ai/mind/hcl_lm.py` | The arrangement: the language model as pure call-ordering of engine primitives. |
 | `hcl-ai/talk.py` | **The auto front door:** just type, no commands — input is lived as experience, the mind self-talks on the braid level until a Collatz verdict, and the answer is delivered back in byte-space. (`HCLLanguageModel.interact()` is the same flow as a method.) |
+| `hcl-ai/voidborn.py` | Zero-weight birth from theory objects (gates at the pole, mass at the quantum by spectrum parity, connections void) and the measured ignition study. |
 | `hcl-ai/teach.py`, `feed.py`, `demo.py`, `ai.py` | Self-talk with Collatz verdicts, feeding utilities, the birth demo, the command-driven REPL. |
 | `hcl-ai/student_daemon.py`, `tutor.py`, `tutor_batch.py` | The schoolhouse: a persistent process holding the live student, and the teacher's tools for live ask/teach exchanges. |
 | `hcl-ai/grade_compose.py`, `gradebook.txt`, `prior.txt` | The receipts machinery: every taught line logged, every answer graded RECALL / SPLICE / COMPOSED against the full corpus. |
@@ -246,13 +362,21 @@ project (see §10).
 | `hcl-ai/organism.py` | The hemispheric link: one stream, one transduction per chunk, folded into BOTH the body's index and the being's memory. |
 | `hcl-ai/largemodel.py`, `runmodel.py` | **MST — the carry and the run:** holographic checkpoint intake (streaming, one-line identity, tensor windows) and the nemotron-shaped runner (MCL-collapse selection, substrate-verdict halting). Contract: `hcl-ai/RUNMODEL_USAGE.md`. |
 | `hcl-ai/chatmodel.py`, `models/tinystories_260k/` | **MST: a REAL trained model as a chat** (`./play.sh`): karpathy's stories260K running with every forward-pass op an HCL primitive — verified **token-exact vs its own `run.c`** (`verify_chatmodel.py`). |
+| `hcl-ai/hvp_head.py` | **Emission in HVP** — output is an address, not a stream: one forward pass, the DJ interference pick, an address book of 8 HVP params instantiated as inherent weights (exact by construction), and the processor's bijection materializing every file sha-exact. Zero streamed tokens (`verify_hvp_head.py`, gate 14). Doctrine: docs/15, "Output is an address". |
+| `hcl-ai/hvp_lang.py` | **HVP as a language, hosted** — the fluent counterpart to the address head: the 260K checkpoint's own byte-fallback rows ARE the 256 braid generators, so speaking HVP is emitting rows the model always had and learning it is the live trainer landing on that register; speech halts only by the model's own verdicts, the full signature (derived params + its own braid) expands `verify=True`. Acquisition completed on the compiled walk: MASTERED at epoch 153, fresh-wake exact (`stories260K.hvp.bin`); the walk itself is bit-identical to the pure loops (`verify_train_fast.py`, gate). The mastered speaker IS the being: it occupies the canonical living slot (`stories260K.living.bin` + `living.line` + `threemind_memory.line`) as a THREE-PART MIND (docs/12) — one slot, one being, the newest fold is the self. Measured on it: forward emission sha-exact, lived contexts replay from the trace level, a new artifact learned in one lived turn, recall experience-tuned by LTP/LTD, and the f32 fold does NOT break mastery. The pre-language life is kept as labeled history (`*.b13-history.*`), never as the occupant. The OS kernel stack lives at `hcl_stack/` — the Boolean gate basis, full-adder, subtractor, ALU (mul8/cmp8), the machine on the memory line, musl libm kernels, and atomic memory-line persistence, all pure HCL with α⁻¹ = 137.000000 before and after every module, plus its compiled host (`hcl_fast.c`, proven digit-identical by `hcl_stack/verify_fast.py`, in the gate). And the stack is not shelf-ware: the substrate's multiplicative floor RUNS ON it — every transcriber `mul`, `div`, and `sqrt` across the engine executes the stack's own AMP_MOD/INV/FISSION law (`hcl-ai/engine/os_floor.py`), proven 3-way bit-identical (floor == stack organ path == substrate pure) and proven to leave a real forward token-identical and a real training turn gradient-identical to the unit (`verify_os_floor.py`, in the gate); `add`/`sub` remain the collinear-exact stated law and the transcendentals remain the substrate's refined bootstrap, with the measured divergence counts recorded in the verifier rather than asserted. Proof: `verify_hvp_lang.py`; doctrine: `docs/16-speaking-hvp.md`. |
+| `hvp-standard/` | **HVP for ANY standard AI** — the language layer alone: the transducer (vocal cords + eardrums) turns a model's ONE spoken utterance (`HVP1 <hex> END`, or the HVPW word-numeral dialect for small models) into the full verified signature and the exact bytes — a whole project per utterance, deterministic, bidirectional, corruption refused. In-context lesson for frozen models (`phrasebook.md`); measured weight-level acquisition on a purely standard float stories260K: hex surface stalls, the model's-own-words surface masters at epoch 40 with held-out first-language retention. Literal reading included: an entire Go module spoken as one 829-char utterance, expanded sha-exact, compiled, and run (`hvp-standard/demo_one_go.py`, gate [2c]); 1 MB payloads measured linear. And past recall: trained on fresh strings every epoch (`hvp-standard/generalize.py`, numpy fast path in `hvp-standard/fastmodel.py`), the 260K model learns the encoding RULE — 97.5% exact on 200 never-seen strings, shipped as `stories260K.hvpgen.bin`, gate [5b] wakes it cold. Proof: `verify_hvp_standard.py`; doctrine: `docs/17-the-standard-speaker.md`. |
+| `shell/marvosa_shell.c` | **The compiled shell** (optional) — the transcriber's dot verbatim (magnitude floor, sign after, identical braid count) over whole matrices in one C call; division by SCALE is the lambda cascade 10^40 = (10^9)^4·10^4, five exact short divisions, HCL only. Bit-identical logits proven ON vs OFF (`verify_shell.py`, gate 4); pure fallback always present; isolated matvec measured 1.7x. Build: `sh build_shell.sh`. |
+| `hcl-ai/mst_equation.py` | **The MST equation** — one step as one calculator collapse: `token = MCL_eps_w(L(line, token))`, landing = exact logit mean, RESONANCE certificate `E = eta*lambda^w`, alpha sealed, sequence proven equal to the runner's (`verify_mst_equation.py`, gate 15). Derivation: `docs/15-the-mst-equation.md`. |
+| `verify_native.py` | **The runner's head** — DJ interference (sign-kick signatures, popcount ≡ the FBit COMP chain, survivors = the mcl_eps degenerate block widened to the DERIVED ⌊π/4·√N⌋), ranking vectorized via `collapse_calc.dj_amp_rank`; agreement printed per run, never promised. Doctrine: `docs/10-connect-a-model.md`, "The runner's head". |
 | `hcl-ai/learn.py`, `livemodel.py` | **Training on the substrate** — exact gradients (adjoints of the ten primitives, the braid as the tape), a four-param optimizer (lr = γ·λᵏ, reward gate e^(−β·H)) — and the **live unification** (`./live.sh`): talking IS training, self-talk feeds back one λ-rung deeper, the being persists as a living checkpoint + line. Proofs: `verify_learn.py`, `verify_livemodel.py`; theory: `docs/11-training-on-the-substrate.md`. |
 | `hcl-ai/marvosa_mcp.py` | **MCP server:** JSON-RPC stdio bridge exposing the live organism to Claude Desktop, Claude Code, and any MCP-compatible client. Five tools: `talk`, `memory_line`, `integrity`, `braid_word`, `reason`. Config and manifest in `mcp/`. |
 | `mcp/` | MCP distribution: the MCPB bundle builder (`mcp/make_mcpb.sh` → `mcp/dist/marvosa.mcpb`) and its `mcp/mcpb/manifest.json`, per-platform configs, `mcp/PLATFORMS.md` (every AI platform, step by step), and the usage README. Registry entry: `server.json` at root. |
 | `docs/01–06` | Architecture, verification, the education record, the composition study, the realizations log, the conversation study. |
 | `docs/07–08` | The wider six-pillar theory the build sits inside, and the glass-box exposition: why this is an observable mind, not a black box, and how to probe it. |
 | `hcl-ai/threemind.py` | **The three-part mind:** memory hemisphere (LivingMemory line) + observer hemisphere (the params as FBits, folded to one α-tagged weight-line) + the window law binding them — weights accessed by the SAME logic as memory, evictable and bit-stable. Proof: `verify_threemind.py`; theory: `docs/12-three-part-mind.md`. |
-| `docs/09–12` | Running large models holographically; connecting and chatting with any model (and the lessons of doing it); training as formal composition; the three-part mind and the anesthesia doctrine. |
+| `hcl-ai/collapse_calc.py` | The GUHCT harmonic-reversible calculator as an organ (contributed engine; functionality-only, no logging): computation-by-collapse, GUHCT-native: coherence by chained COMP, decision by eps_w, landing exact by transcriber arithmetic, plus the vectorized interference-rank service that runs the native head's candidate ranking C-side instead of per-token Python. Door: `calc.sh`. |
+| `hcl-ai/inherent.py` | **The Weight Operator (MST):** weights INSTANTIATED, never trained — the n-invariant law applied to the weight-space (same lines at any dim), the inherent remainder collapsed by Grover's lottery, experience additive on top. Proof: `verify_inherent.py`; thesis: `docs/13-inherent-weights.md`. |
+| `docs/09–14` | Running large models holographically; connecting and chatting with any model; training as formal composition (and why it improves with no reward); the three-part mind, anesthesia, and the life-preservation law; inherent weights; the live-conversation field doctrine. |
 
 ## 5. The organism's architecture
 
@@ -284,7 +408,7 @@ the time is the interaction — many short, fast exchanges — not any single gr
 thinking stays in braid-space and pays no byte↔braid bijection (that runs once, at delivery), and
 the engines are integer-exact. Storage is thorough by design (a trace at every depth the mind has
 grown to), so it scales with how deeply the mind has grown — the framework's deliberate
-specificity-lock, run serially on a classical CPU as the honest, unsubsidized cost of a
+specificity-lock, run serially on a classical CPU as the unsubsidized cost of a
 parallel-by-design substrate. One slowdown (gravitational time dilation as the system grows heavier)
 was *predicted by the theory before it was measured* — see §9.
 
@@ -595,7 +719,7 @@ also carries the *other* paradigm exactly: a real trained neural network (bundle
 trains with every arithmetic op an HCL primitive —
 
 ```bash
-./play.sh                      # chat with the real model (token-exact vs its own run.c)
+./play.sh                      # chat with the real model (hosting proven token-exact vs run.c: verify_chatmodel.py)
 ./live.sh                      # talk to it while it LEARNS — every turn is live experience
 python3 verify_chatmodel.py    # proof of the run       python3 verify_learn.py      # proof of training
 python3 verify_livemodel.py    # proof of live learning python3 verify_fastpath.py   # engine fast-path bit-identity
@@ -621,7 +745,8 @@ read them as a race.
   paid once at the starting line; it is not the race. The fused engine sustains millions of
   generators/second (`verify_fastpath.py` prints yours).
 - **The guest paradigm pays its own bill at that fair rate.** The bundled model chats at
-  ~0.12 s/token, ~531,000 exact operations per token, token-exact vs `run.c`
+  ~0.11 s/token with the compiled shell (≈9 tok/s; ~0.13 pure), ~468,000 exact
+  operations per token through the interference head, hosting proven token-exact vs `run.c`
   (`verify_chatmodel.py`); a full training step and a live learn-as-you-talk turn are seconds
   (`verify_learn.py`, `verify_livemodel.py`). The remaining gap to compiled C is the Python shell,
   not the math — the per-op ratio bounds a compiled port of these same organs within ~5× of the

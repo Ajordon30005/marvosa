@@ -100,8 +100,6 @@ class ThreeMind:
     """The composed being: memory line + observer line + the window law,
     wrapped around the living standard model's one-experience loop."""
 
-    _BOOK = os.path.join(_HERE, '..', 'models', 'tinystories_260k',
-                         'threemind_book.txt')          # transparency LOG only
     _MEMLINE = os.path.join(_HERE, '..', 'models', 'tinystories_260k',
                             'threemind_memory.line')    # the memory ITSELF
 
@@ -182,8 +180,6 @@ class ThreeMind:
         key = f"turn{self._turn}"
         self.memory.store(key, text)
         self._turn += 1
-        with open(self._BOOK, 'a') as f:
-            f.write(text.strip().replace('\n', ' ') + '\n')
         r['memory_key'] = key
         r['memory_sig'] = self.memory.signature()
         return r
@@ -191,6 +187,45 @@ class ThreeMind:
     def recall(self, query, k=3):
         """Resonance collapse over the memory hemisphere: ranked keys."""
         return self.memory.recall(query, k=k)
+
+    # ── the collapse cascade, one level deeper ───────────────────────────
+    def speak(self, text, steps=None, reward=None):
+        """The organism's emission law carried onto the hosted being
+        (mind/hcl_lm.py:206 _collapse — 'candidate traces at the current
+        context; the byte<->braid bijection runs once at delivery'):
+
+          TRACE LEVEL   an exact lived context — a key say|{ctx} the being
+                        itself wrote — resolves at trace cost: the reply is
+                        REGENERATED bijectively from the memory line. No
+                        forward pass; the braid is the stored one.
+          FALL-THROUGH  no trace resonates (hcl_lm's TERMINATED at that
+                        context) — the transformer forward is the deepest
+                        attractor: the full braid runs ONCE, and its reply
+                        becomes a new trace, so that context never pays
+                        the deep braid again.
+
+        Speech either way is the being's own words — remembered speech
+        re-enters the fold as experience, the self-talk law unchanged."""
+        ctx = ' '.join(text.split()[-8:])
+        key = f"say|{ctx}"
+        lived = self.memory.regenerate(key) if key in self.memory.hvp else None
+        if lived is not None and lived.startswith('ids:'):
+            # the trace IS the signal: token ids straight to the mouth,
+            # no text round-trip (bijection only at delivery)
+            ids = [int(x) for x in lived[4:].split(',') if x]
+            r = self.being.interact(text, steps=steps, reward=reward,
+                                    scripted_reply=ids)
+            r['emission'] = 'trace'
+        else:
+            r = self.being.interact(text, steps=steps, reward=reward)
+            self.memory.store(key, 'ids:' + ','.join(map(str, r['tokens'])))
+            r['emission'] = 'forward'
+        k2 = f"turn{self._turn}"
+        self.memory.store(k2, text)
+        self._turn += 1
+        r['memory_key'] = k2
+        r['memory_sig'] = self.memory.signature()
+        return r
 
     def remember(self, query):
         """Collapse to the most resonant lived turn and REGENERATE its

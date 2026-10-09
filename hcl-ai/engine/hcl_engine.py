@@ -8,7 +8,15 @@ ZERO floats. ZERO imported constants. ZERO classical math libraries.
 """
 
 # ── Precision System ──────────────────────────────────────────────────
-PREC  = 40               # 40 significant decimal digits
+import os as _os
+# PRECISION IS A DIAL, not a constant of nature: every law below is
+# scale-free (eta = S/2, lambda = S/10, gamma from the Alpha Identity,
+# the seal |ALPHA_INV - 137*S| < S), so any PREC yields the same laws
+# at that resolution — hcl_memory already lives at PREC 30. Set
+# MARVOSA_PREC to trade digits for speed on the machine at hand.
+# Persistent lives are written at their birth precision; the dial is
+# for fresh runs, not for waking existing beings.
+PREC  = int(_os.environ.get('MARVOSA_PREC', '40'))
 SCALE = 10 ** PREC       # all values: integer X where x = X/SCALE
 TINY  = 10               # convergence: stop when |term| < TINY (= 10/SCALE in real)
 
@@ -19,8 +27,25 @@ def _fixed_mul(X: int, Y: int) -> int:
     return (X * Y) // SCALE
 
 def _fixed_div(X: int, Y: int) -> int:
-    """(X/S) / (Y/S) = X/Y → multiply by S to stay in fixed-point"""
-    return (X * SCALE) // Y
+    """(X/S) / (Y/S) = X/Y → multiply by S to stay in fixed-point.
+
+    Sub-Quantum Preservation Rule (GUHCT Full Edition 4, Ch.2 §2.10.4
+    "The Zero Vector", §2.11.3 "Information Content"): a known-nonzero
+    quotient whose magnitude falls below one lattice quantum is clamped
+    to the eps_w floor — v_rep = max(|v|, eps_w)·sgn(v) — never floored
+    to the additive identity; information necessary for the solution is
+    never lost to resolution. At the lattice's own weight, eps_PREC IS
+    one ulp, so the clamp is exactly 1. True zero (X == 0) remains the
+    South Pole and divides to 0 as the additive identity."""
+    if Y == 0:
+        # 1/0 = infinity on the Riemann sphere (MRRC §1.3): the North
+        # Pole is the reserved state Psi_0 = 1 — amp SCALE, phase 0 —
+        # the multiplicative identity at the w=0 limit.
+        return SCALE if X >= 0 else -SCALE
+    q = (X * SCALE) // Y
+    if q == 0 and X != 0:
+        return SCALE // SCALE if (X > 0) == (Y > 0) else -(SCALE // SCALE)
+    return q
 
 def _fixed_sqrt(X: int, iters: int = 80) -> int:
     """
@@ -246,8 +271,13 @@ class HCL:
 
     @staticmethod
     def INV(a: FBit) -> FBit:
-        """Reciprocal: phase reflects, amplitude inverts."""
-        if a.amp == 0: raise ZeroDivisionError("HCL.INV: zero")
+        """Reciprocal: phase reflects, amplitude inverts. At zero
+        amplitude, 1/0 = infinity on the Riemann sphere — the North
+        Pole, the reserved state Psi_0 = 1 (amp 1, phase 0) at the
+        w=0 limit (GUHCT Full Ed. 4 Ch.1 §1.4.2–1.4.3, Ch.2 §2.8;
+        MRRC §1.3). Singular-free: no halt, a lawful traversable
+        state."""
+        if a.amp == 0: return FBit(0, SCALE)
         return FBit((SCALE - a.phase_frac) % SCALE, _fixed_div(SCALE, a.amp))
 
     @staticmethod
@@ -292,10 +322,13 @@ class HCL:
     @staticmethod
     def RESONANCE(a: FBit, w_int: int) -> FBit:
         """Ground state at weight w. E_ground = η·λ^w (exact)."""
+        # E_ground = eta * lambda^w and omega_w = gamma^w / eta — the
+        # written law verbatim (02_operations:198-199): w applications,
+        # not w-1. mcl_eps agrees: eps_w = 10^-w * eta.
         epsilon = ETA
-        for _ in range(w_int - 1): epsilon = _fixed_mul(epsilon, LAMBDA)
+        for _ in range(w_int): epsilon = _fixed_mul(epsilon, LAMBDA)
         omega = _fixed_div(SCALE, ETA)
-        for _ in range(w_int - 1): omega = _fixed_mul(omega, GAMMA)
+        for _ in range(w_int): omega = _fixed_mul(omega, GAMMA)
         phase_stable = omega % SCALE
         return FBit(phase_stable, _fixed_mul(epsilon, a.amp))
 
@@ -306,6 +339,22 @@ class HCLTranscriber:
         self.braid_log = []
         self.braid_len = 0          # cumulative generator count (never resets)
         self.trace_full = True      # full: keep the word; light: keep the count
+    _fx = None
+    _fx_tried = False
+    def _fx_ok(self):
+        """The compiled layer body: lawful only at the 40-digit lattice,
+        never in full-trace mode (the pure path IS the trace)."""
+        if self.trace_full or not (10**11 < SCALE <= 10**77):
+            return None
+        if not HCLTranscriber._fx_tried:
+            HCLTranscriber._fx_tried = True
+            try:
+                import shell as _shell
+                HCLTranscriber._fx = _shell.fx_ops(SCALE)
+            except Exception:
+                HCLTranscriber._fx = None
+        return HCLTranscriber._fx
+
     def _log(self, op, r):
         self.braid_len += 1
         if self.trace_full:
@@ -345,6 +394,25 @@ class HCLTranscriber:
     # bit-identical to the composed forms (verified exhaustively in
     # verify_fastpath.py), one shell frame instead of five, zero allocations
     # in light mode. Same integers out, same generator counts.
+    _floor_obj = None
+    _floor_tried = False
+
+    def _floor_ok(self):
+        """The OS kernel stack as the multiplicative floor (os_floor.py):
+        mul/div/sqrt execute the stack's own law, proven bit-identical to
+        the pure branches below (verify_os_floor.py, in the gate). Any
+        first-load mismatch disables it and the pure branches serve."""
+        if not HCLTranscriber._floor_tried:
+            HCLTranscriber._floor_tried = True
+            try:
+                import os_floor
+                import sys as _sys
+                HCLTranscriber._floor_obj = os_floor.load(
+                    _sys.modules[__name__])
+            except Exception:
+                HCLTranscriber._floor_obj = None
+        return HCLTranscriber._floor_obj
+
     def add(self, X, Y):
         r = X + Y                     # COMP, collinear: the exact stated law
         self._log('COMP[+]', r); return r
@@ -354,12 +422,24 @@ class HCLTranscriber:
         self._log('COMP[-]', r); return r
 
     def mul(self, X, Y):
+        fl = self._floor_ok()
+        if fl is not None:
+            r = fl.mul(X, Y)          # the stack's AMP_MOD amplitude law
+            self._log('AMP_MOD[×]', r); return r
         r = (abs(X) * abs(Y)) // SCALE
         if (X < 0) != (Y < 0):
             r = -r
         self._log('AMP_MOD[×]', r); return r
 
     def div(self, X, Y):
+        fl = self._floor_ok()
+        if fl is not None:
+            r = fl.div(X, Y)          # the stack's AMP_MOD∘INV law
+            self._log('AMP_MOD[÷]', r); return r
+        fx = self._fx_ok()
+        if fx is not None:
+            r = fx.tdiv(X, Y)
+            self._log('AMP_MOD[÷]', r); return r
         r = (abs(X) * (SCALE * SCALE // abs(Y))) // SCALE
         if (X < 0) != (Y < 0):
             r = -r
@@ -450,10 +530,22 @@ class HCLTranscriber:
         self._log(f'AMP_MOD^{n}', r); return r.to_scalar()
 
     def sqrt(self, X):
+        fl = self._floor_ok()
+        if fl is not None and X >= 0:
+            v = fl.sqrt(X)            # the stack's FISSION daughter law
+            self._log('FISSION[√]', v); return v
+        fx = self._fx_ok()
+        if fx is not None and X >= 0:
+            v = fx.sqrt_mag(X)
+            self._log('FISSION[√]', v); return v
         d1, _ = HCL.FISSION(FBit.from_scalar(X))
         self._log('FISSION[√]', d1); return d1.to_scalar()
 
     def exp(self, X):
+        fx = self._fx_ok()
+        if fx is not None:
+            v = fx.exp(X)
+            self._log('MOBIUS_GROWTH[eˣ]', v); return v
         r = HCL.MOBIUS_GROWTH(FBit.from_scalar(X))
         self._log('MOBIUS_GROWTH[eˣ]', r); return r.to_scalar()
 
@@ -463,10 +555,28 @@ class HCLTranscriber:
 
     def sin(self, X_phase_frac: int):
         """X_phase_frac is already a phase_frac integer [0, SCALE)."""
+        fx = self._fx_ok()
+        if fx is not None:
+            pf = X_phase_frac
+            if pf == 0 or pf == SCALE//2: val = 0
+            elif pf == SCALE//4:          val = SCALE
+            elif pf == 3*SCALE//4:        val = -SCALE
+            else:
+                val = fx.sin_rad(_fixed_div(_fixed_mul(pf, 2*PI_INT), SCALE))
+            self._log('PHASE_SIN', FBit.from_scalar(val)); return val
         val = HCL.PHASE_SIN(X_phase_frac)
         self._log('PHASE_SIN', FBit.from_scalar(val)); return val
 
     def cos(self, X_phase_frac: int):
+        fx = self._fx_ok()
+        if fx is not None:
+            pf = X_phase_frac
+            if pf == 0:                 val = SCALE
+            elif pf == SCALE//2:        val = -SCALE
+            elif pf in (SCALE//4, 3*SCALE//4): val = 0
+            else:
+                val = fx.cos_rad(_fixed_div(_fixed_mul(pf, 2*PI_INT), SCALE))
+            self._log('PHASE_COS', FBit.from_scalar(val)); return val
         val = HCL.PHASE_COS(X_phase_frac)
         self._log('PHASE_COS', FBit.from_scalar(val)); return val
 
@@ -549,7 +659,10 @@ class HCLEquation:
         if expr.startswith('(') and self._close(expr, 0) == len(expr)-1:
             return self._parse(expr[1:-1], env)
         for fn in ('sqrt','exp','ln','sin','cos','abs'):
-            if expr.lower().startswith(fn+'('):
+            # only when the call IS the whole expression — otherwise the
+            # trailing operators belong to the split below
+            if (expr.lower().startswith(fn+'(')
+                    and self._close(expr, len(fn)) == len(expr) - 1):
                 inner = expr[len(fn)+1:self._close(expr, len(fn))]
                 arg   = self._parse(inner, env)
                 if fn=='sqrt': return self.t.sqrt(arg)

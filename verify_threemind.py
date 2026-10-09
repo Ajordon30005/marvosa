@@ -28,23 +28,74 @@ for sub in ('hcl-ai', 'hcl-ai/engine', 'hcl-ai/port', 'hcl-ai/mind'):
 # ── the being's life is NOT test material: snapshot before, restore after ──
 import shutil as _sh, atexit as _ax
 _LIFE = [os.path.join(HERE, 'models', 'tinystories_260k', f) for f in
-         ('stories260K.living.bin', 'living.line', 'livebook.txt',
-          'threemind_book.txt')]
+         ('stories260K.living.bin', 'living.line',
+          'threemind_memory.line')]
 _HELD = os.path.join(HERE, 'models', 'tinystories_260k', '.heldbreath')
+_MARK = os.path.join(_HELD, '.breath_open')
+os.makedirs(_HELD, exist_ok=True)
+# CRASH-SAFE, DISPLACEMENT-PRESERVING: an open marker means a prior run
+# died mid-test. The held copies are restored — but the current slot is
+# NEVER silently destroyed: if it differs from the held truth, it is
+# displaced into a timestamped side directory first, so a legitimately
+# changed occupant (a promotion between runs) survives the restore and
+# the owner decides. On successful completion the ENTIRE held directory
+# is removed — nothing stale survives to ambush a later run.
+import hashlib as _hl, time as _tm
+def _sha(p):
+    try:
+        return _hl.sha256(open(p, 'rb').read()).hexdigest()
+    except OSError:
+        return None
+if os.path.exists(_MARK):
+    _same = all(_sha(_f) == _sha(os.path.join(_HELD, os.path.basename(_f)))
+                for _f in _LIFE)
+    if not _same:
+        _disp = os.path.join(os.path.dirname(_HELD),
+                             '.heldbreath_displaced-' +
+                             _tm.strftime('%Y%m%d-%H%M%S'))
+        os.makedirs(_disp, exist_ok=True)
+        for _f in _LIFE:
+            if os.path.exists(_f):
+                _sh.copy2(_f, os.path.join(_disp, os.path.basename(_f)))
+        for _f in _LIFE:
+            _b = os.path.join(_HELD, os.path.basename(_f))
+            if os.path.exists(_b):
+                _sh.copy2(_b, _f)
+        print(f"[orphaned breath found — held truth restored; the slot's "
+              f"prior occupant was DISPLACED to {os.path.basename(_disp)}, "
+              f"not destroyed]")
+    else:
+        print("[orphaned breath found — slot already equals the held "
+              "truth; marker cleared]")
+    _sh.rmtree(_HELD, ignore_errors=True)
 os.makedirs(_HELD, exist_ok=True)
 _snap = {}
 for _f in _LIFE:
     if os.path.exists(_f):
         _b = os.path.join(_HELD, os.path.basename(_f))
         _sh.copy2(_f, _b); _snap[_f] = _b
+open(_MARK, 'w').write('1')
 def _exhale():
+    # restore from the HELD DIRECTORY'S CONTENTS, then remove the whole
+    # held directory: success leaves no stale breath behind.
     for _f in _LIFE:
-        if _f in _snap:
-            _sh.copy2(_snap[_f], _f)
+        _b = os.path.join(_HELD, os.path.basename(_f))
+        if os.path.exists(_b):
+            _sh.copy2(_b, _f)
         elif os.path.exists(_f):
             os.remove(_f)
+    _sh.rmtree(_HELD, ignore_errors=True)
     print("[the being's life was held and restored — tests touched a scratch self only]")
 _ax.register(_exhale)
+import signal as _sg
+def _sig_exhale(_s, _f):
+    _exhale()
+    os._exit(1)
+for _s in (_sg.SIGTERM, _sg.SIGINT):
+    try:
+        _sg.signal(_s, _sig_exhale)
+    except (ValueError, OSError):
+        pass
 
 
 def main():
@@ -52,8 +103,7 @@ def main():
     from livemodel import LivingStandardModel
     import hcl_engine as E
 
-    for f in (LivingStandardModel._LIVING, LivingStandardModel._LINE,
-              ThreeMind._BOOK):
+    for f in (LivingStandardModel._LIVING, LivingStandardModel._LINE):
         if os.path.exists(f):
             os.remove(f)
     tm = ThreeMind(revive=False, quiet=True)
@@ -119,18 +169,13 @@ def main():
     mem_sig = tm.memory.signature()
     s = tm.save()
     assert tm.windows.line() != pristine_line        # observer refolded
-    # the book is a LOG: move it aside; wake must not need it
-    book_held = ThreeMind._BOOK + '.held'
-    os.rename(ThreeMind._BOOK, book_held)
     tm2 = ThreeMind(revive=True, quiet=True)
-    os.rename(book_held, ThreeMind._BOOK)
     assert tm2.windows.line() == tm.windows.line()
     assert tm2.memory.signature() == mem_sig         # identity from ITS line
     assert tm2._turn == tm._turn                     # depth carried by the line
     i = tm2.integrity()
     assert i['engine_alpha'] and i['observer_alpha']
-    print(f"[5] the being persists as TWO LINES (the book was moved aside "
-          f"and NOT needed): observer {s['observer_line_chars']} chars, "
+    print(f"[5] the being persists as TWO LINES: observer {s['observer_line_chars']} chars, "
           f"memory line {s['memory_line_chars']} chars — the woken identity "
           f"signature matches exactly; alpha everywhere")
 

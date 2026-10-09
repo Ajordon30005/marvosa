@@ -88,8 +88,25 @@ class HCLTensorEngine:
         return self.t.dot(xs, ws)               # the engine's fused form (bit-identical)
 
     def linear(self, x, W, b=None):
-        """y = x W^T (+ b). W is a list of rows (output dim x input dim)."""
-        y = [self.dot(x, row) for row in W]
+        """y = x W^T (+ b). W is a list of rows (output dim x input dim).
+        With the compiled shell present, the whole matrix runs in one C
+        call — same integers, same braid count (verify_shell.py); the
+        pure row loop below is the identical fallback."""
+        try:
+            import shell as _shell
+        except Exception:
+            _shell = None
+        if _shell is not None and _shell.available() and not self.t.trace_full:
+            key = id(W)
+            cache = getattr(self, '_shell_cache', None)
+            if cache is None:
+                cache = self._shell_cache = {}
+            pm = cache.get(key)
+            if pm is None:
+                pm = cache[key] = _shell.PackedMatrix(W)
+            y = _shell.matvec(pm, x, self.t)
+        else:
+            y = [self.dot(x, row) for row in W]
         if b is not None:
             y = [self.add(yi, bi) for yi, bi in zip(y, b)]
         return y
@@ -125,6 +142,13 @@ class HCLTensorEngine:
     def softmax(self, z):
         """softmax(z) = exp(z_i) / Σ exp(z_j), via MOBIUS_GROWTH + COMP + INV.
         Subtract max first (a comparison at the boundary) for numerical range."""
+        fx = self.t._fx_ok() if hasattr(self.t, '_fx_ok') else None
+        if fx is not None:
+            out = fx.softmax(z)
+            # count parity with the pure body: n exp + n sub + n add
+            # + 1 div + n vscale
+            self.t.braid_len += 4 * len(z) + 1
+            return out
         m = z[0]
         for zi in z[1:]:
             if zi > m:
@@ -161,13 +185,67 @@ class HCLTensorEngine:
             self.t.axpy(out, w, v)           # out += w·v, fused, counted
         return out
 
+    def attention_resonance(self, Q, K, V, d_head, k_comp_cache=None, eps_w=None):
+        """Native GUHCT attention — a NEW LANE, not the hosted op:
+          score_i = amp(COMP(Q*, K*_i))       constructive resonance —
+                                              the organism's own recall law
+                                              (mind/hcl_lm.py:234)
+          Q*, K*_i = COMP-chain of components  the ensemble-as-one-state
+                                              law (02_operations COMP;
+                                              collapse_calc.HCLCollapse)
+          w_i = score_i / SUM scores           the theory's normalization,
+                                              amp / total (hcl_lm.py:28,
+                                              :184) — NO exponentials
+          out = SUM w_i * v_i                  weighted accumulate (axpy)
+        K-composites are cacheable per position (pass k_comp_cache, a
+        list the caller owns; new keys are composed once)."""
+        from hcl_engine import FBit, HCL
+        def compose(vec):
+            st = FBit.from_scalar(vec[0])
+            for c in vec[1:]:
+                st = HCL.COMP(st, FBit.from_scalar(c))
+            return st
+        Qc = compose(Q)
+        scores = []
+        for i, k in enumerate(K):
+            if k_comp_cache is not None:
+                if i >= len(k_comp_cache):
+                    k_comp_cache.append(compose(k))
+                Kc = k_comp_cache[i]
+            else:
+                Kc = compose(k)
+            scores.append(HCL.COMP(Qc, Kc).amp)     # resonance amplitude
+        if eps_w is not None and scores:
+            # MCL windowing, the shipped collapse law verbatim
+            # (mst_equation.mcl_pick / juj.mcl_eps): keep the degenerate
+            # set — keys within eps_w of the dominant resonance. The rest
+            # collapse out of the mixture. Sparsity by physics, not top-k.
+            from mst_equation import mcl_pick
+            _, ties = mcl_pick(scores, eps_w)
+            keep = set(ties)
+            scores = [sc if i in keep else 0 for i, sc in enumerate(scores)]
+        total = 0
+        for sc in scores:
+            total = self.add(total, sc)
+        out = [0] * len(V[0])
+        if total == 0:
+            return out
+        for sc, v in zip(scores, V):
+            if sc == 0:
+                continue
+            w = self.div(sc, total)
+            self.t.axpy(out, w, v)
+        return out
+
     def braid_word(self):
         """The complete reversible operation trace of everything run (Step 6)."""
         return self.t.braid_word()
 
     def alpha_ok(self):
-        """Step 7: the four-param integrity checksum must read 137."""
-        return abs(E.ALPHA_INV / SCALE - 137) < 1
+        """Step 7: the four-param integrity checksum must read 137. Pure
+        integer — the seal never crosses the float boundary (01_theory:
+        Alpha Identity; SCALE = 10^PREC)."""
+        return abs(E.ALPHA_INV - 137 * SCALE) < SCALE
 
 
 def transformer_block(eng, x, params):

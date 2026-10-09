@@ -175,9 +175,11 @@ shell frame, same generator counts), and the collinear shortcut inside
 `HCL.COMP` that IS the documented law. `verify_fastpath.py` proves every
 path bit-identical to the composed forms over 20,000+ pairs including the
 edges, then every semantic gate re-ran green: token-exact vs run.c, all
-260,032 gradients at 4e-15, α = 137, `test_all.sh`. Result: ~12× —
+260,032 gradients at 4e-15, α = 137, `test_all.sh`. Result then: ~12× —
 0.25 s/token inference, ~1 s/token live training. Same integers, same
-counts, thinner shell. **Python is the shell; GUHCT is the arithmetic —
+counts, thinner shell. (Since trimmed further: the interference head and
+the compiled shell put the runner at ~0.11 s/token today — README map,
+`verify_native.py`, `verify_shell.py`.) **Python is the shell; GUHCT is the arithmetic —
 when it drags, suspect the shell, fix the organ, verify bit-for-bit.**
 
 **The observer tax, measured.** Materializing the trace costs more than the

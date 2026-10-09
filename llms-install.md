@@ -7,7 +7,7 @@ alpha-tagged line.
 
 ## Prerequisites
 
-1. Python 3.8+ (standard library only — **no pip installs required**)
+1. Python 3.8+ (standard library only for the organism and MCP server — **no pip installs required**; the collapse-calculator door `calc.sh` uses numpy)
 2. Git
 
 ## Installation Steps

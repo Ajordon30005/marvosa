@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 2 · the HCL AI — doc 01, *architecture*.  
+> **Assumes:** doc 00's vocabulary (FBit, braid, MCL). **Shows:** the organ layout: engine, memory line, processor, and how one thought crosses them. **Code:** `hcl-ai/engine/hcl_engine.py, hcl-ai/engine/hcl_memory.py, hcl-ai/engine/living_memory.py`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · **[01]** · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · [06](06-conversation.md) · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 01 — Architecture: Arrangement, Never Invention
 
 The single most important fact about `hcl-ai/`: **it contains no new mechanisms.** Every component
@@ -37,7 +43,7 @@ The engines are integer-exact and self-checking (α = 137 across all three). Sto
 design: `train()` records the transition at **every** context depth d=1..N (the specificity-lock,
 docs/00), so trace count grows with the square of lesson length — this is the framework's deliberate
 multi-depth store, not a cost to optimize away. Recall and generation execute this serially on a
-classical CPU; that serial execution is the honest, "unsubsidized" cost of running a parallel-by-design
+classical CPU; that serial execution is the "unsubsidized" cost of running a parallel-by-design
 substrate in Python, and it is acknowledged as such, not hidden. Nothing in the math is approximated to
 go faster.
 

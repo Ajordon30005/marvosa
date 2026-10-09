@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 2 · the HCL AI — doc 05, *realizations*.  
+> **Assumes:** docs 00–04. **Shows:** what the build settled: parallel-by-design run serially, the memory line as the whole self. **Code:** `hcl-ai/engine/hcl_memory.py`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · **[05]** · [06](06-conversation.md) · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 05 — Working With the Skills: Rules That Keep Results Correct
 
 The skills are exact and self-verifying. Following them produces correct results directly. These
@@ -50,7 +56,7 @@ thinking stays in braid space — the next token is read from the collapse key, 
 transform runs per token; the verified bijection runs once, at delivery. And the engines are
 integer-exact with no float overhead. Storage is thorough by design: a trace at every depth the
 mind has grown to, which is the framework's deliberate specificity-lock, run serially on a classical
-CPU as the honest, unsubsidized cost of a substrate that is parallel by design. Never change the
+CPU as the unsubsidized cost of a substrate that is parallel by design. Never change the
 math for speed.
 
 ## No imposed ceiling: weight is complexity, bounded only by the substrate

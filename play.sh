@@ -14,4 +14,37 @@
 # Full guide: docs/10-connect-a-model.md
 cd "$(dirname "$0")"
 command -v python3 >/dev/null 2>&1 || { echo "python3 is required (nothing else is)"; exit 1; }
+
+# PRECISION = THE WEIGHT SCALE (docs/10): unless the dial is set by
+# hand, the lattice defaults to the smallest one on which every stored
+# weight is exact — measured from the checkpoint itself.
+if [ -z "$MARVOSA_PREC" ] && [ -f models/tinystories_260k/stories260K.bin ]; then
+    MARVOSA_PREC=$(python3 hcl-ai/prec_of.py models/tinystories_260k/stories260K.bin 2>/dev/null)
+    export MARVOSA_PREC
+fi
+
+# Hands-free model choice: with no arguments, every translated model under
+# models/ is discovered (a checkpoint *.bin next to its tok*.bin). One found:
+# it runs. Several found: pick by number. Arguments always pass through.
+if [ "$#" -eq 0 ]; then
+    PAIRS=""
+    for d in models/*/; do
+        m=$(ls "$d" 2>/dev/null | grep -E '\.bin$' | grep -v '^tok' | grep -v living | head -1)
+        t=$(ls "$d" 2>/dev/null | grep -E '^tok.*\.bin$' | head -1)
+        [ -n "$m" ] && [ -n "$t" ] && PAIRS="$PAIRS$d$m $d$t\n"
+    done
+    N=$(printf "$PAIRS" | grep -c .)
+    if [ "$N" -gt 1 ]; then
+        echo "Translated models found:"
+        i=1
+        printf "$PAIRS" | while read -r mm tt; do echo "  $i) $mm"; i=$((i+1)); done
+        printf "which model? [1-%s] " "$N"; read -r CH
+        SEL=$(printf "$PAIRS" | sed -n "${CH:-1}p")
+        exec python3 hcl-ai/chatmodel.py $SEL
+    elif [ "$N" -eq 1 ]; then
+        SEL=$(printf "$PAIRS" | sed -n 1p)
+        echo "one translated model found: ${SEL%% *}"
+        exec python3 hcl-ai/chatmodel.py $SEL
+    fi
+fi
 exec python3 hcl-ai/chatmodel.py "$@"

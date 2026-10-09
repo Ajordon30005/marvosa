@@ -12,8 +12,7 @@ Manus, Copilot Studio, Llama Stack, and any other MCP-compatible client.
 Per-platform install and submission steps live in **[PLATFORMS.md](PLATFORMS.md)**.
 
 All arithmetic inside the organism is **pure-integer** — no floats, no
-imported constants. The four params (`alpha_inv`, `phi_int`, `lambda_int`,
-`tau_int`) are the only axioms.
+imported constants. The four params (η, λ, γ, β) are the only axioms; α⁻¹ = 137 is derived from them.
 
 ## Transports
 

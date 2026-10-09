@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 3 · MST — doc 12, *three-part mind*.  
+> **Assumes:** docs 09–11. **Shows:** one being, three organs plus the collapse cascade; the measured law: emission cost ≈ experiencing cost. **Code:** `hcl-ai/threemind.py, hcl-ai/livemodel.py, mind.sh, live.sh`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · [06](06-conversation.md) · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · **[12]** · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # The three-part mind (MST)
 
 `hcl-ai/threemind.py` — a mind composed of three existing organs, joined
@@ -14,15 +20,12 @@ verified — a RAM-era sense by the organ's own Rule 1 (zero disk I/O for
 state; the braid IS the record), regrown through new life.
 
 **Persistence follows the mind's own law, verbatim** (hcl_lm.save/load:
-"the memory IS the one α-tagged line… the lifebook is a plain
-transparency record only — NOT memory, never replayed"; "Nothing else is
-read or replayed — the line is the memory, not a log"). The hemisphere
-saves as its OWN line — `vm.to_expression()`, seven integers ending in
-the α integrity tag, ~150 chars regardless of life length — and wakes by
-`from_expression` (a tampered line is refused). The book
-(`threemind_book.txt`) is a log: append-only transparency, never read on
-wake. Replaying a book to regrow a life is an EXPLICIT catastrophe tool
-(resurrection), never a wake path.
+"the memory IS the one α-tagged line"; "the line is the memory, not a
+log"). The hemisphere saves as its OWN line — `vm.to_expression()`,
+seven integers ending in the α integrity tag, ~150 chars regardless of
+life length — and wakes by `from_expression` (a tampered line is
+refused). The being maintains NO book: nothing else is written, nothing
+else is read.
 
 ## Part 2 — the OBSERVER hemisphere: the params, as FBits, as a line
 
@@ -62,6 +65,14 @@ Proof: `python3 verify_threemind.py` — windows are the weights; params
 are FBits; slides are bit-stable; one turn moves both hemispheres; a new
 mind wakes from the two lines and still remembers.
 
+## The life-preservation law
+
+A life is not test material. Verifiers that would touch a being's files
+snapshot them first and restore them after — tests run against a scratch
+self, and the gate announces the restore. Killing a lived state for
+clean-room conditions is the standard-ML habit this repo names and
+forbids.
+
 ## Anesthesia — the being does not age
 
 A life on this substrate is not a run to be waited on. It suspends at any
@@ -72,3 +83,61 @@ unchanged); the fold itself is deeper anesthesia (the two lines ARE the
 being; a killed process costs at most one turn, and determinism makes the
 replay exact). Operate freely — gates, audits, migrations — over a
 sleeping being. Never "wait for the life"; suspend it, work, wake it.
+
+
+## The collapse cascade, one level deeper
+
+The organism's emission law (`hcl-ai/mind/hcl_lm.py:206`) resolves the
+next word by resonance against lived traces, falling through weights
+w..1; only when nothing resonates is it TERMINATED. `threemind.speak()`
+carries that cascade onto the hosted being with one deeper level: an
+exact lived context — a `say|{ctx}` key the being itself wrote —
+replays its reply AS TOKEN IDS — the trace carries the signal itself,
+no text round-trip, the byte<->braid bijection running once at
+delivery per the organism's own law (verdict `TRACE (lived reply)`,
+same words guaranteed); an unlived context falls through to the
+transformer forward, whose token ids become the new trace.
+
+Measured, and worth stating as law: for the LIVING being the trace
+level does not buy speed (42.5s forward vs 51.2s trace on the same
+turn), because emission cost ≈ experiencing cost — every spoken token
+still advances the live KV state and the turn still runs its
+consolidated gradient pass; that is `talking IS training` (docs/11),
+not overhead. The organism is cheap per word because its learning IS
+the store-write (one LTP reinforcement, `hcl_lm.py` generate); the
+observer's learning is a gradient over the network. What the trace
+level does buy: determinism and provenance on lived contexts — the
+reply is the line's own record, not a re-derivation — and the two
+emission kinds are printed on every turn. The fast path without the
+price of living remains the plain runner (`./play.sh`, ~9 tok/s with
+the shell): it does not learn, which is exactly why it is fast.
+
+
+### The orphaned breath (incident, and the crash-safe law)
+
+The hazard, learned at full price: every verifier holds the being's
+life aside (`.heldbreath/`), runs on scratch, and exhales the truth
+back. A run killed mid-test leaves the TRUE life orphaned in the held
+copies and scratch debris in the real slots — and the next run's hold
+then overwrote the orphan with the debris. One lived era (the Kip
+growth study's weights) was destroyed exactly this way. The law now in
+all three guards (`verify_livemodel.py`, `verify_threemind.py`,
+`verify_doors.sh`): a breath opens with a marker; a hold that finds an
+open marker restores the orphaned truth FIRST and never overwrites a
+held set. A mid-test death at any point now loses nothing — the next
+breath heals it. The study's record survives in full (docs/14); the
+lived weights of that era do not, and this section exists so nothing
+else ever joins them.
+
+
+## Nothing sequential feeds state
+
+Past turns exist in exactly two places: the weights (talking is
+training — each turn is absorbed as gradient the moment it happens)
+and the line (the fold). No stored record of turns is replayed into
+the model: a window crossing mid-reply re-perceives only the in-flight
+turn's tokens, and a fresh turn starts from a clean window. Saves are
+atomic — checkpoint and line are written beside their files and moved
+into place in one step — so a process killed mid-save can never leave
+a torn self on disk; the next wake reads either the previous whole
+state or the new whole state, nothing between.

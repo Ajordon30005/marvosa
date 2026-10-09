@@ -43,7 +43,7 @@ Half right, and the repo says so plainly — which is the point. Run the analyze
 ```
 
 You will see it cannot reorder words inside a learned phrase — and you will see it join fragments
-across unrelated lessons into sentences that were never taught. It also **fails honestly**: ask it
+across unrelated lessons into sentences that were never taught. It also **refuses rather than invents**: ask it
 to invert a relation it only learned one direction and it stops dead. A lookup table doesn't splice
 and doesn't fail that specific way. Read `docs/04-composition.md` for the receipts; the limits are
 documented as carefully as the capabilities, because a thing that hides its limits is the thing you
@@ -56,7 +56,7 @@ suspicion: the scan shows the only `float()` is in the **transcriber**, whose en
 carry ordinary human input (a typed decimal) across the boundary *into* the substrate's integers —
 the intended doorway, not float math in the engine. Every calculation after that point is pure
 integer floor-division. (Kill-switch: a float in an actual calculation. The boundary transcribe is
-not one.) On speed, read the honest number in `docs/02-verification.md`: integer fixed-point
+not one.) On speed, read the measured number in `docs/02-verification.md`: integer fixed-point
 multiply benchmarks ~5× slower than a hardware float multiply *in the same interpreter* — not the
 10–100× a strawman would claim, and not "free" either. The framing is stated plainly: float speed
 is a hardware subsidy (silicon built for IEEE-754); this runs with no such subsidy and stays within

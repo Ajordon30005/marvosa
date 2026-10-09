@@ -29,7 +29,7 @@ mind's own contract, verb for verb:
   (TERMINATED/BRAID CLOSED/MCL)         |   its own seq_len — never a counter
   the being persists as its one line    | save(): the living checkpoint (the
   (memory.hcl) + lifebook transparency  |   model's own format) + its α-tagged
-                                        |   line + livebook.txt (log only)
+                                        |   line (the memory)
   wakes from its own line on __init__   | revive=True wakes from the LIVING
                                         |   checkpoint if one exists
 
@@ -55,6 +55,19 @@ from nemotron_hcl import _fp, _val
 import hcl_engine as E
 
 
+def greedy_orbit(seq):
+    """BRAID CLOSURE (docs/14): greedy decoding is deterministic — an
+    exact period p<=16 sustained across >=96 trailing tokens certifies
+    the future is that cycle forever. A mathematical halt, not a token
+    cap; novel speech is never bounded by it."""
+    n = len(seq)
+    for p in range(1, 17):
+        if n >= max(96, 8 * p) and all(
+                seq[-k] == seq[-k - p] for k in range(1, min(n - p, 96))):
+            return p
+    return 0
+
+
 class LivingStandardModel:
     """A standard trained model that lives: every interaction — external or
     its own self-talk — is experience, and experience updates the weights,
@@ -63,7 +76,6 @@ class LivingStandardModel:
     _STATE = os.path.join(_HERE, '..', 'models', 'tinystories_260k')
     _LIVING = os.path.join(_STATE, 'stories260K.living.bin')
     _LINE = os.path.join(_STATE, 'living.line')
-    _LIVEBOOK = os.path.join(_STATE, 'livebook.txt')     # transparency log ONLY
 
     def __init__(self, base_model=None, tokenizer=None, revive=True,
                  k_stratum=2, quiet=False):
@@ -74,10 +86,13 @@ class LivingStandardModel:
         src = self._LIVING if (revive and os.path.exists(self._LIVING)) \
             else base_model
         self.revived = (src == self._LIVING)
-        self.m = StandardModel(src, tokenizer, quiet=quiet)
+        self.m = StandardModel(src, tokenizer, quiet=quiet, native=False)
+        # CONSTITUTION: the living being speaks its exact mind — self-talk
+        # trains on what it says (docs/11), so its speech must be its own
+        # argmax, not the fast reader's interference pick (docs/10).
         self.tr = Trainer(self.m, k_stratum=k_stratum)
         self.SELF_W = E.LAMBDA                 # self-talk: one λ-rung deeper
-        self.transcript = []                   # the lived token record (RAM)
+        self.transcript = []                   # vestigial; never feeds state
         self._pos = 0                          # session KV position
         self._cur = None                       # last token awaiting forward
         if not quiet:
@@ -87,7 +102,7 @@ class LivingStandardModel:
 
     # ── the whole conversation in one motion (hcl_lm.interact, mirrored) ─
     def interact(self, user_input: str, steps=None, reward=None,
-                 persist=False, stream=None):
+                 persist=False, stream=None, scripted_reply=None):
         """You speak; it answers and EXPERIENCES — one motion.
 
         1. SPEAK-BACK: the reply is generated from the rolling context +
@@ -100,7 +115,7 @@ class LivingStandardModel:
            one rung deeper). Reward, if given, gates the entire step by the
            MCL Boltzmann weight e^(−β·H), H = −reward.
         3. PERSIST (optional): the being saves itself — living checkpoint +
-           α-tagged line + livebook entry.
+           α-tagged line.
         """
         e = self.e = self.m.eng
         tok = self.m.tok
@@ -121,43 +136,85 @@ class LivingStandardModel:
             user_toks = tok.encode(user_input, bos=(self._pos == 0))
 
         t0 = time.time()
-        # feed the person's words (teacher-forced perception)
-        for t_ in user_toks:
-            if self._cur is not None:
-                self.m.forward(self._cur, self._pos)
+        # LIGHT TRACE for the spoken span (the engine's own dial):
+        # generator counts stay exact; the compiled shell branches
+        # may serve the forwards — logits bit-identical
+        # (verify_shell [3]); the prior mode is restored below, and
+        # the experience pass manages its own mode (learn.py).
+        _was_full = e.t.trace_full
+        e.t.light()
+        try:
+            # feed the person's words (teacher-forced perception)
+            for t_ in user_toks:
+                if self._cur is not None:
+                    self.m.forward(self._cur, self._pos)
+                    self._pos += 1
+                self._cur = t_
+            # speak: greedy from the live state, ending by the model's own
+            # verdict (EOS/BOS or seq_len); `steps` is a delivery bound only.
+            # scripted_reply: the being's OWN prior words for this exact lived
+            # context (the trace level of the collapse cascade, threemind.speak)
+            # — spoken again verbatim; each emission re-reinforces its trace
+            # (LTP, mind/hcl_lm.py generate). The experience pass below is
+            # unchanged: remembered speech re-enters the fold as self-talk.
+            completion, comp_toks = '', []
+            verdict = 'DELIVERY BOUND'
+            n_gen = 0
+
+            if scripted_reply is not None:
+                # SIGNAL SPACE ONLY: a lived reply arrives as its TOKEN IDS —
+                # the braid-level record — never as text to re-encode. The
+                # byte<->braid bijection runs ONCE, at delivery below
+                # (mind/hcl_lm.py's law: internal thinking stays in signal
+                # space). A str is refused rather than transduced.
+                assert isinstance(scripted_reply, list), \
+                    "scripted_reply must be token ids (signal), not text"
+                comp_toks = [int(t) for t in scripted_reply]
+                tk = self.tok if hasattr(self, 'tok') else self.m.tok
+                prev = self._cur
+                parts = []
+                for t_ in comp_toks:
+                    if self._cur is not None:
+                        self.m.forward(self._cur, self._pos)
+                        self._pos += 1
+                    parts.append(tk.decode(t_, prev)); prev = t_
+                    self._cur = t_
+                completion = ''.join(parts)          # delivery, once
+                verdict = 'TRACE (lived reply)'
+
+            while scripted_reply is None:
+                if self._pos >= self.c_seq() - 1:
+                    # Capacity is a WINDOW boundary, not a stop (the ingest law,
+                    # applied to the being's own voice): re-root on the tail of
+                    # everything lived INCLUDING this very reply, and keep
+                    # speaking. Only the model's own EOS ends its speech.
+                    self._reroot_live(user_toks + comp_toks)
+                logits = self.m.forward(self._cur, self._pos)
                 self._pos += 1
-            self._cur = t_
-        # speak: greedy from the live state, ending by the model's own
-        # verdict (EOS/BOS or seq_len); `steps` is a delivery bound only
-        completion, comp_toks = '', []
-        verdict = 'DELIVERY BOUND'
-        n_gen = 0
-        while True:
-            if self._pos >= self.c_seq() - 1:
-                # Capacity is a WINDOW boundary, not a stop (the ingest law,
-                # applied to the being's own voice): re-root on the tail of
-                # everything lived INCLUDING this very reply, and keep
-                # speaking. Only the model's own EOS ends its speech.
-                self._reroot_live(user_toks + comp_toks)
-            logits = self.m.forward(self._cur, self._pos)
-            self._pos += 1
-            best, nxt = None, 0
-            for i, lg in enumerate(logits):
-                if best is None or lg > best:
-                    best, nxt = lg, i
-            if nxt in (BOS, EOS):
-                verdict = 'MODEL EOS'
-                break
-            piece = tok.decode(nxt, self._cur)
-            completion += piece
-            comp_toks.append(nxt)
-            if stream:
-                stream(piece)
-            self._cur = nxt
-            n_gen += 1
-            if steps is not None and n_gen >= steps:
-                break
-        e.t.clear()
+                best, nxt = None, 0
+                for i, lg in enumerate(logits):
+                    if best is None or lg > best:
+                        best, nxt = lg, i
+                if nxt in (BOS, EOS):
+                    verdict = 'MODEL EOS'
+                    break
+                piece = tok.decode(nxt, self._cur)
+                completion += piece
+                comp_toks.append(nxt)
+                if stream:
+                    stream(piece)
+                self._cur = nxt
+                n_gen += 1
+                p = greedy_orbit(comp_toks)
+                if p:
+                    verdict = f'BRAID CLOSED (greedy orbit, period {p})'
+                    break
+                if steps is not None and n_gen >= steps:
+                    break
+            e.t.clear()
+        finally:
+            if _was_full:
+                e.t.full()
         gen_s = time.time() - t0
 
         # ── EXPERIENCE the NEW exchange (the mind's own law: train(input) —
@@ -181,9 +238,9 @@ class LivingStandardModel:
         braid, self.tr.braid_ops = self.tr.braid_ops, 0
         learn_s = time.time() - t1
 
-        self.transcript += turn                # the lived record (for reroot)
 
         out = {'answer': completion,
+               'tokens': comp_toks,           # the signal itself, for traces
                'verdict': verdict,
                'surprise': float(_val(loss)),      # how new this turn was
                'gated': reward is not None,
@@ -215,29 +272,34 @@ class LivingStandardModel:
         self.m.eng.t.clear()
 
     def _reroot_live(self, pending):
-        """Mid-reply window crossing (the ingest law on the being's own
-        voice): slide the window, re-perceive the bounded tail of the full
-        lived stream INCLUDING the in-flight turn, keep speaking."""
-        self._feed_tail((self.transcript + pending)[-self._window_stride():])
+        """Mid-reply window crossing: slide the window and re-perceive the
+        IN-FLIGHT TURN ONLY. Past turns are not replayed from any record —
+        they already live in the weights (talking IS training) and in the
+        line (the fold). The line is the memory; nothing sequential feeds
+        state."""
+        self._feed_tail(pending[-self._window_stride():])
 
     def _reroot(self, incoming: int = 0):
         """Turn-start capacity boundary: window the lived stream so the
         incoming tokens fit AND the reply has at least half-capacity of
         room before its next window crossing."""
-        keep = min(self.c_seq() - incoming - 1, self._window_stride())
-        tail = self.transcript[-keep:] if keep > 0 else []
-        self._feed_tail(tail)
+        # Past turns are in the weights and the line, not in a replayable
+        # record: a fresh turn starts from a clean window.
+        self._feed_tail([])
         return
 
     # ── persistence: the being saves itself (hcl_lm.save, mirrored) ─────
     def save(self, experienced_input: str = None) -> dict:
-        self.tr.save_checkpoint(self._LIVING)
+        # atomic: write beside, then replace — a reaped process can never
+        # leave a torn checkpoint or a torn line on disk
+        import os as _os
+        tmp = self._LIVING + '.tmp'
+        self.tr.save_checkpoint(tmp)
+        _os.replace(tmp, self._LIVING)
         line = self.tr.fold_line(self._LIVING)
-        with open(self._LINE, 'w') as f:
+        with open(self._LINE + '.tmp', 'w') as f:
             f.write(line + '\n')
-        if experienced_input and experienced_input.strip():
-            with open(self._LIVEBOOK, 'a') as f:     # transparency log ONLY
-                f.write(experienced_input.strip() + '\n')
+        _os.replace(self._LINE + '.tmp', self._LINE)
         return {'line_chars': len(line), 'checkpoint': self._LIVING}
 
     def line(self) -> str:
@@ -281,8 +343,8 @@ if __name__ == '__main__':
     args = ap.parse_args()
 
     being = LivingStandardModel(revive=not args.fresh)
-    print("[note] each turn = reply (~0.12s/token) + one consolidated "
-          "learning pass (~0.7s/token of turn); repetition visibly teaches it.")
+    print("[note] each turn = reply (~0.11-0.15s/token) + one consolidated "
+          "learning pass (~0.7-1.7s/token of turn, load-dependent); repetition visibly teaches it.")
     print("live chat — it learns as you talk (empty line to quit; "
           "'/save' to persist; '/reward X' to gate the last turn's style)\n")
     while True:

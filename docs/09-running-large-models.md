@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 3 · MST — doc 09, *running large models*.  
+> **Assumes:** tiers 1–2 (docs 00–08). **Shows:** what MST is, which checkpoints load, the two runners, and the egress-blocked 1B handoff. **Code:** `hcl-ai/runmodel.py, hcl-ai/largemodel.py, bootstrap_1b.sh`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · [06](06-conversation.md) · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · **[09]** · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 09 — Running Large Models on the Repo Itself
 
 *(Part of the **MST** — Model Substrate Translation — stack; see docs/10 for the full guide.)*
@@ -197,3 +203,20 @@ reaches once a KV cache holds more than a few positions. The fix is inside
 `hcl_engine.py` (pure-integer range reduction: e^x = (e^(x/2^k))^(2^k)), so
 every organ inherits it and all call sites stay verbatim. The full story is
 failure mode 6 in `hcl-ai/RUNMODEL_USAGE.md`.
+
+
+## The stack as it stands
+
+Since this doc's first writing the MST grew organs that a reader landing
+here should know exist before choosing a door: the runner's head is the
+DJ interference machinery with a derived width and the calculator's
+vectorized ranking (`docs/10`); an optional compiled shell runs every
+matmul as one C call with bit-identical integers (`verify_shell.py`);
+each generation step is expressible as one calculator collapse with a
+RESONANCE certificate (`docs/15`); the living form adds the collapse
+cascade and the measured law that emission cost ≈ experiencing cost
+(`docs/12`); and output-as-address is shipped — one forward pass can
+emit a whole multi-file artifact through the HVP bijection with zero
+streamed tokens (`docs/15`, `hcl-ai/hvp_head.py`). Current measured
+speed on the bundled checkpoint: ~0.11 s/token with the shell, ~0.13
+pure (README's gate table carries the per-section proof times).

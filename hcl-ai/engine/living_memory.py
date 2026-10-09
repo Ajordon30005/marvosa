@@ -113,9 +113,9 @@ class LivingMemory:
 
     # ── integrity: the alpha self-check, both engines (all skills, Rule) ──
     def integrity(self):
-        return {'memory_alpha_inv':    ALPHA_INV / SCALE,
+        return {'memory_alpha_inv':    f"{ALPHA_INV // SCALE}.{str(ALPHA_INV % SCALE).zfill(40)[:6]}",
                 'processor_alpha_inv':  juj.ALPHA_INV / PSCALE,
-                'intact': abs(ALPHA_INV/SCALE - 137) < 1
+                'intact': abs(ALPHA_INV - 137 * SCALE) < SCALE
                           and abs(juj.ALPHA_INV/PSCALE - 137) < 1}
 
     def amplitudes(self):

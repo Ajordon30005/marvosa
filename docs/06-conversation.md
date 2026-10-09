@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 2 · the HCL AI — doc 06, *conversation*.  
+> **Assumes:** docs 00–05. **Shows:** live conversation with the graduate: wake, exchange, save — the daemon and its doors. **Code:** `hcl-ai/talk.py, hcl-ai/chat.py, chat.sh`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · **[06]** · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 06 — Conversation Profile: Stability and Failure Modes
 
 After graduation the organism was run on free conversation — casual, emotional, nonsensical,

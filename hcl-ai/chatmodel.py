@@ -165,7 +165,28 @@ class StandardModel:
     windows; the forward pass is arrangement of the port's ops; the KV cache
     holds substrate integers the way run.c holds floats."""
 
-    def __init__(self, model_path, tokenizer_path, chunk=256 * 1024, quiet=False):
+    @staticmethod
+    def _sign_pack(vec):
+        """NATIVE REGIME signature — 04_quantum:93 verbatim: negative value =
+        phase kickback pi, positive = 0, packed as bits. A popcount of the
+        XOR is EXACTLY the DJ COMP-chain amplitude (proven bit-identical in
+        verify_native.py). Arithmetic identity, machine-word form."""
+        b = 0
+        for i, v in enumerate(vec):
+            if v < 0:
+                b |= (1 << i)
+        return b
+
+    def __init__(self, model_path, tokenizer_path, chunk=256 * 1024, quiet=False,
+                 native=True, native_refine=0, native_refine_att=0):
+        # native: the DJ interference regime (docs/10; 04_quantum:93/95/96).
+        # The LAW carries no width knob: survivors = the dominant-degenerate
+        # set under mcl_eps(w) with w = the comparison braid's length
+        # (juj:384's rule). native_refine / native_refine_att are CALLER
+        # TRANSPORT (like steps=): optional widening of the exact-refinement
+        # set, 0 = pure law.
+        self.native = native
+        self.native_refine, self.native_refine_att = native_refine, native_refine_att
         self.m = ModelMemory(chunk=chunk)
         st = self.m.ingest_file(model_path)
         self.fmt = self.m.format()
@@ -212,6 +233,16 @@ class StandardModel:
         import hcl_engine as _E
         self._E = _E
         self.eng = HCLTensorEngine()
+        try:
+            import shell as _shell_mod
+            self._shell = _shell_mod if _shell_mod.available() else None
+        except Exception:
+            self._shell = None
+        self._shell_pm = {}
+        self.native_attn = False
+        self._kcomp = {}
+        self._wmax = {}
+        self._rcomp = {}
         self.eng.t.light()          # counting mode: every generator counted,
                                     # the per-op dict skipped (the word remains
                                     # available via full(); see hcl_engine)
@@ -229,11 +260,88 @@ class StandardModel:
         self.reset()
 
     def reset(self):
+        self._kcomp = {}
         c = self.cfg
         self.k_cache = [[] for _ in range(c['n_layers'])]   # per layer: list of [kv_dim] fp
         self.v_cache = [[] for _ in range(c['n_layers'])]
+        self.k_sig = [[] for _ in range(c['n_layers'])]      # native: packed sign kicks per cached k
+        self.wcls_sig = None                                 # native: packed sign kicks per vocab row
 
     # ── ops composed from the port's engine (nothing new) ───────────────
+    def _matvec(self, W, x, tag):
+        """[e.dot(x, row) for row in W] — with the compiled shell present,
+        the whole matrix runs as one C call with the engine's own dot
+        semantics and braid count (shell/marvosa_shell.c; engine/shell.py;
+        proof: verify_shell.py). The pure row loop is the identical
+        fallback and the only path when tracing.
+
+        MASS PARTICIPATION, two tiers:
+        T1 (always on, EXACT): a row whose largest weight magnitude
+        satisfies max|x| * max|w_row| < SCALE produces exactly zero —
+        every product in the dot floors to the additive identity
+        (engine dot law: p = (|x|*|w|)//S). The row is skipped with its
+        full generator count preserved (the annihilation sequence IS
+        the law's operations). Logits and braid counters are
+        bit-identical by construction; zero and sub-quantum rows cost
+        nothing to traverse.
+        T2 (opt-in, its OWN LANE via m.mass_eps): rows participate by
+        the shipped collapse law — resonance amp(COMP(X*, R*_row))
+        scored, mcl_pick keeps the degenerate set within eps of the
+        dominant, the rest output zero this token. Outputs and counts
+        differ from the exact lane by design; alpha still seals."""
+        e = self.eng
+        S = self._E.SCALE
+        n_cols = len(W[0]) if W else 0
+        # T2 — the collapse lane (before anything else touches the rows)
+        eps = getattr(self, 'mass_eps', None)
+        if eps is not None and W:
+            from hcl_engine import FBit, HCL
+            rc = self._rcomp.get(tag)
+            if rc is None:
+                rc = []
+                for row in W:
+                    st = FBit.from_scalar(row[0])
+                    for v in row[1:]:
+                        st = HCL.COMP(st, FBit.from_scalar(v))
+                    rc.append(st)
+                self._rcomp[tag] = rc
+            xs = FBit.from_scalar(x[0])
+            for v in x[1:]:
+                xs = HCL.COMP(xs, FBit.from_scalar(v))
+            scores = [HCL.COMP(xs, r).amp for r in rc]
+            from mst_equation import mcl_pick
+            _, keep = mcl_pick(scores, eps)
+            keep = set(keep)
+            return [e.dot(x, W[i]) if i in keep else 0
+                    for i in range(len(W))]
+        # T1 — exact annihilation skip
+        wmax = self._wmax.get(tag)
+        if wmax is None:
+            wmax = self._wmax[tag] = [max(abs(v) for v in row) if row else 0
+                                      for row in W]
+        xmax = 0
+        for v in x:
+            av = -v if v < 0 else v
+            if av > xmax:
+                xmax = av
+        if any(xmax * m < S for m in wmax):
+            out = []
+            for row, m in zip(W, wmax):
+                if xmax * m < S:
+                    e.t.braid_len += 2 * n_cols   # the annihilations, counted
+                    out.append(0)
+                else:
+                    out.append(e.dot(x, row))
+            return out
+        if (self._shell is not None and not e.t.trace_full
+                and 10 ** 11 < S <= 10 ** 77):   # cascade: any lattice in limb range
+            pm = self._shell_pm.get(tag)
+            if pm is None:
+                pm = self._shell_pm[tag] = self._shell.PackedMatrix(W)
+            return self._shell.matvec(pm, x, e.t)
+        return [e.dot(x, row) for row in W]
+
+
     def _rmsnorm(self, x, w):
         e = self.eng
         ss = e.dot(x, x)                       # Σ x·x — the fused COMP-loop
@@ -247,6 +355,14 @@ class StandardModel:
         take phase_frac = angle/2π). run.c v1 formula, on the substrate."""
         e, HS = self.eng, self.cfg['head_size']
         TWO_PI = 2 * self._E.PI_INT
+        fx = e.t._fx_ok() if hasattr(e.t, '_fx_ok') else None
+        if fx is not None:
+            rotated = fx.rope(vec, upto, HS, _fp(float(pos)),
+                              self.inv_freq, TWO_PI)
+            vec[:len(rotated)] = rotated
+            # per pair: mul, div, cos, sin, 4 mul, sub, add = 10 ops
+            e.t.braid_len += 10 * (upto // 2)
+            return
         for i in range(0, upto, 2):
             j = (i % HS) // 2
             val = e.mul(_fp(float(pos)), self.inv_freq[j])   # pos * inv_freq  (fixed-point radians)
@@ -259,6 +375,12 @@ class StandardModel:
     def _silu_mul(self, h1, h3):
         """SwiGLU: h1 * sigmoid(h1) * h3 — exp/add/div/mul, per element."""
         e = self.eng
+        fx = e.t._fx_ok() if hasattr(e.t, '_fx_ok') else None
+        if fx is not None:
+            out = fx.silu_mul(h1, h3)
+            # per element: sub, exp, add, div, mul, mul = 6 ops
+            e.t.braid_len += 6 * len(h1)
+            return out
         out = []
         for a, b in zip(h1, h3):
             sig = e.div(self.ONE, e.add(self.ONE, e.exp(e.sub(0, a))))
@@ -274,13 +396,15 @@ class StandardModel:
         x = list(self.emb[token])
         for l in range(c['n_layers']):
             xb = self._rmsnorm(x, self.rms_att[l])
-            q = [e.dot(xb, row) for row in self.wq[l]]
-            k = [e.dot(xb, row) for row in self.wk[l]]
-            v = [e.dot(xb, row) for row in self.wv[l]]
+            q = self._matvec(self.wq[l], xb, ('wq', l))
+            k = self._matvec(self.wk[l], xb, ('wk', l))
+            v = self._matvec(self.wv[l], xb, ('wv', l))
             self._rope(q, pos, D)
             self._rope(k, pos, KD)
             self.k_cache[l].append(k)
             self.v_cache[l].append(v)
+            if self.native:
+                self.k_sig[l].append(self._sign_pack(k))
             # GQA attention: the port's own attention per head
             attn_out = [0] * D
             per_kv = H // KV
@@ -289,18 +413,95 @@ class StandardModel:
                 Q = q[h * HS:(h + 1) * HS]
                 K = [kt[g * HS:(g + 1) * HS] for kt in self.k_cache[l]]
                 V = [vt[g * HS:(g + 1) * HS] for vt in self.v_cache[l]]
-                oh = e.attention(Q, K, V, HS)          # nemotron_hcl, verbatim
+                _watt = self.native_refine_att
+                if self.native and _watt and len(K) > _watt:
+                    # attention interference is EXPLICIT caller transport only:
+                    # measured (docs/10) — sign braids at small head_size are
+                    # too coarse to carry the law; default remains exact.
+                    qs = self._sign_pack(Q)
+                    mask = ((1 << ((g + 1) * HS)) - 1) ^ ((1 << (g * HS)) - 1)
+                    order = sorted(range(len(K)), key=lambda t: bin(
+                        (qs << (g * HS)) ^ (self.k_sig[l][t] & mask)).count('1'))
+                    keep = sorted(order[:_watt])
+                    oh = e.attention(Q, [K[t] for t in keep],
+                                     [V[t] for t in keep], HS)
+                elif getattr(self, 'native_attn', False):
+                    # the resonance lane (opt-in, its OWN outputs): no
+                    # softmax, no exps — score by COMP resonance, weight
+                    # by amp/total (attention_resonance, cited there)
+                    cache = self._kcomp.setdefault((l, h), [])
+                    oh = e.attention_resonance(Q, K, V, HS,
+                                               k_comp_cache=cache,
+                                               eps_w=getattr(self, 'resonance_eps', None))
+                else:
+                    oh = e.attention(Q, K, V, HS)      # nemotron_hcl, verbatim
                 attn_out[h * HS:(h + 1) * HS] = oh
-            xb2 = [e.dot(attn_out, row) for row in self.wo[l]]
+            xb2 = self._matvec(self.wo[l], attn_out, ('wo', l))
             x = e.t.vadd(x, xb2)                                   # residual
             xb = self._rmsnorm(x, self.rms_ffn[l])
-            h1 = [e.dot(xb, row) for row in self.w1[l]]
-            h3 = [e.dot(xb, row) for row in self.w3[l]]
+            h1 = self._matvec(self.w1[l], xb, ('w1', l))
+            h3 = self._matvec(self.w3[l], xb, ('w3', l))
             hb = self._silu_mul(h1, h3)
-            mlp = [e.dot(hb, row) for row in self.w2[l]]
+            mlp = self._matvec(self.w2[l], hb, ('w2', l))
             x = e.t.vadd(x, mlp)                                   # residual
         x = self._rmsnorm(x, self.rms_final)
-        return [e.dot(x, row) for row in self.wcls]                # logits
+        self.hidden = x                    # the pre-classifier state (native head)
+        if self.native:
+            if self.wcls_sig is None:
+                from juj import mcl_eps
+                self.wcls_sig = [self._sign_pack(r) for r in self.wcls]
+                D = len(x)
+                # LAW OBJECTS (asserted in verify_native, not re-read per
+                # token): eps_w sits BELOW one amplitude quantum (2*init),
+                # so the exact top-amplitude tie block computed below IS
+                # the mcl_eps(w) degenerate set; the 04:90 init scales all
+                # amplitudes uniformly and cancels in ordering.
+                self._eps_w = mcl_eps(max(D, 1))       # juj:384: w = braid length
+                # 04_quantum:90 verbatim: init_amp = 1/sqrt(N)
+                self._dj_init = self._E._fixed_div(
+                    self._E.SCALE,
+                    self._E._fixed_sqrt(len(self.wcls) * self._E.SCALE, 60))
+                try:                  # numpy: fast path only, never required
+                    import numpy as _np
+                    from collapse_calc import dj_amp_rank as _rank, \
+                                              pack_sigs as _pack
+                    self._np, self._rank = _np, _rank
+                    self._wcls_sig_u64 = _pack(self.wcls_sig, D)
+                except Exception:     # stdlib branch below: identical law
+                    self._np = self._rank = self._wcls_sig_u64 = None
+            qs = self._sign_pack(x)
+            D = len(x)
+            Nv = len(self.wcls)
+            # DERIVED width (Grover resonance count floor(pi/4*sqrt(N))).
+            if self.native_refine:
+                width = self.native_refine
+            else:
+                sqN = self._E._fixed_sqrt(Nv * self._E.SCALE, 80)
+                width = max(1, (self._E.PI_INT * sqN) //
+                            (4 * self._E.SCALE * self._E.SCALE))
+            # One vectorized interference pass (C-side), the production
+            # law exactly: amplitude |2*agree - D| descending, stable.
+            # Survivors = the MCL degenerate top-amplitude block (exact
+            # ties: eps_w is below the amplitude quantum), widened to the
+            # derived width when the block is smaller.
+            if self._rank is not None:
+                order, amps = self._rank(qs, self._wcls_sig_u64, D)
+            else:                          # pure-Python amplitude law, verbatim
+                amps = [abs(2 * (D - bin(qs ^ s_).count('1')) - D)
+                        for s_ in self.wcls_sig]
+                order = sorted(range(Nv), key=lambda i: -amps[i])
+            amax = int(amps[order[0]])
+            k = 0
+            while k < Nv and int(amps[order[k]]) == amax:
+                k += 1
+            k = max(k, int(width))
+            survivors = order[:min(k, Nv)]
+            lg = [None] * Nv
+            for i in survivors:
+                lg[int(i)] = e.dot(x, self.wcls[int(i)])
+            floor = min(v for v in lg if v is not None) - 1
+            return [v if v is not None else floor for v in lg]
+        return self._matvec(self.wcls, x, ('wcls',))              # logits
 
     def generate(self, prompt, steps=None, stream=None):
         """Prompt in, answer out — like regular AI, automatically.
@@ -372,8 +573,8 @@ if __name__ == '__main__':
     print("waking the model onto the substrate (~1 min, pure integer)…")
     model = StandardModel(args.model, args.tokenizer)
     print(f"[port] every op on the substrate; alpha_ok={model.eng.alpha_ok()}")
-    print("[note] exact ≠ fast: ~0.12s/token on this checkpoint — every token is "
-          "~531K counted braid generators with an α checksum.\n")
+    print("[note] exact ≠ fast: ~0.11s/token (shell) / ~0.13s pure on this checkpoint — every token is "
+          "~468K counted braid generators with an α checksum.\n")
 
     def run_once(prompt):
         t0 = time.time()

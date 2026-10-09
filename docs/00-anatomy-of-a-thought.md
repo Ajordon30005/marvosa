@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 2 · the HCL AI — doc 00, *anatomy of a thought*.  
+> **Assumes:** nothing — this is the front door. **Shows:** one generation traced FBit-by-FBit: braid word in, MCL verdict out. **Code:** `hcl-ai/mind/hcl_lm.py, hcl-ai/engine/juj.py`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: **[00]** · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · [06](06-conversation.md) · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 00 — The Anatomy of a Thought
 
 **This document traces one real question through the actual code**, function by function, with the

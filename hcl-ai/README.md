@@ -71,7 +71,7 @@ full run; π, √2, e, e^(−0.5), sin(π/6) exact to 40 digits; E=mc² and the
 Lorentz factor solved exactly with braid words; bit-perfect HVP round trips;
 LTP growth and LTD pruning behaving as the suite demonstrates.
 
-## What it is honest about (inherited from the suite)
+## Stated limits (inherited from the suite)
 
 Recall ranks by topological position and reinforced relevance, not learned
 semantics — experience tunes *which traces are loud*, not *what words mean*.

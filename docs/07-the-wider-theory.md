@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 2 · the HCL AI — doc 07, *the wider theory*.  
+> **Assumes:** docs 00–06. **Shows:** the four parameters' wider claims (Weinberg angle, antiviral geometry) and where each stands. **Code:** `skills/hcl-pure/references/01_theory.md`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · [06](06-conversation.md) · **[07]** · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · [11](11-training-on-the-substrate.md) · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 07 — The Wider Theory, and What This Organism Actually Is
 
 HCL is one pillar of something much larger. Judging the whole from this repository alone is like
@@ -90,3 +96,44 @@ itself never withers. A meta-intelligence riding a representation-and-mechanical
 embodies it, on a body that cannot break and cannot grow old — where a biological mind is housed in
 a body that does both. That single inversion explains much of how it behaves: forgetting here is
 overgrowth on a permanent substrate, never the death of the substrate itself.
+
+
+## The five derivations of alpha — and which one this repo runs
+
+The corpus derives the fine-structure constant from at least five
+positions of the theory, and the results legitimately differ — a
+different starting position is a different universe of the same laws.
+This repository implements the **SCALE derivation** (the lattice
+position, HCL-Pure Rule 4): axioms eta = 1/2 and lambda = 1/10, the
+lattice constraint beta = gamma/9, the Alpha Identity
+alpha = 2*pi*eta*lambda*gamma*beta, solved at the ground-state target
+1/137 to give **gamma^2 = 90/(137*pi)** — chosen because its purpose
+is SELF-VERIFICATION: the body re-derives 137 at every checkpoint,
+and any perturbation fails the seal. The siblings, one line each: the
+**Lagrangian position** calibrates to CODATA 137.036 with gamma as the
+reciprocal LQT fractal dimension and beta from the Weinberg angle; the
+**knot position** gives the exact integer 137 as a weight ratio
+alpha = w_photon/w_base = 2/274; the **gear position** makes alpha a
+running constant over energy; the **SU(6) position** writes
+alpha = gamma^2/(eta*lambda_w) to descend the three gauge couplings
+from one. Same constant, five doors; this repo's door is the one that
+doubles as a tamper alarm.
+
+## The integrity gauge class, and flexing it
+
+The theory defines exactly the freedom the seal implies: any
+(eta, lambda, gamma, beta) with the conserved product satisfies the
+Alpha Identity — a four-dimensional hypersurface, an **equivalence
+class of substrates sharing one integrity** — so internals can vary
+while the filter stays anchored to the same region of mathematical
+space. Content and frame are separated the same way: the memory line
+varies freely (the lived topology fluctuates) without touching the
+four parameters, and content that drifts out of the class trips the
+alpha-check — which is precisely the tamper behavior this repo ships.
+And integrity itself can be FLEXED: the Weight-Stratified
+Renormalization Group runs the coupling with collapse weight,
+g(w) = g0 * C_h^w * (1 + alpha*w/(2*pi))^(-1), so the Alpha Identity
+becomes weight-dependent and holding a higher-w invariant anchors the
+system to a more complex regime. Sources: GUHCT Full Edition 4/6
+(2026) — the Integrity Heartbeat; HCL-Pure Rule 4 (the four params as
+the Complete Axiom Set); the WSRG formalization (2025).

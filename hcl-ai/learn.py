@@ -45,7 +45,7 @@ class Trainer:
     grads are dicts mirroring the model's weight structure; every entry is a
     fixed-point integer produced by engine ops only."""
 
-    def __init__(self, model: StandardModel, k_stratum: int = 2):
+    def __init__(self, model: StandardModel, k_stratum: int = 2, fast=None):
         self.m = model
         self.e = model.eng
         self.c = model.cfg
@@ -58,6 +58,19 @@ class Trainer:
         self.ONE = _fp(1.0)
         self.braid_ops = 0          # cumulative trace length across ticks
         self._mark = self.e.t.braid_len
+        # compiled shell for the walk's matrix mass (same guarded pattern
+        # as HCLNemotron.linear): bit-identical values, identical braid
+        # counts (verify_train_fast.py). fast=None -> auto when the shell
+        # is present; the pure loops below remain the ground truth.
+        try:
+            import shell as _shell
+        except Exception:
+            _shell = None
+        self._shell = _shell if (_shell is not None and _shell.available()) \
+            else None
+        self.fast = (self._shell is not None) if fast is None else \
+            (fast and self._shell is not None)
+        self._pm = {}
 
     def _tick(self):
         """Bound the in-RAM trace exactly as inference does: record the
@@ -68,6 +81,21 @@ class Trainer:
         self.braid_ops += t.braid_len - self._mark
         self._mark = t.braid_len
         t.clear()
+
+    def _packed(self, W):
+        pm = self._pm.get(id(W))
+        if pm is None:
+            pm = self._shell.PackedMatrix(W)
+            self._pm[id(W)] = pm
+        return pm
+
+    def _mvW(self, x, W):
+        """rows of e.dot over a weight matrix — one shell call in fast
+        mode (bit-identical contract, verify_shell), the pure loop
+        otherwise."""
+        if self.fast:
+            return self._shell.matvec(self._packed(W), x, self.e.t)
+        return [self.e.dot(x, r) for r in W]
 
     # ── tape-cached forward (same engine calls as inference) ────────────
     def _forward_tape(self, toks):
@@ -107,9 +135,9 @@ class Trainer:
             T['n1'] = [self._rms_f(x, m.rms_att[l]) for x in xs]
             xb = [t[0] for t in T['n1']]
             # q k v
-            T['q'] = [[e.dot(v, r) for r in m.wq[l]] for v in xb]
-            T['k'] = [[e.dot(v, r) for r in m.wk[l]] for v in xb]
-            T['v'] = [[e.dot(v, r) for r in m.wv[l]] for v in xb]
+            T['q'] = [self._mvW(v, m.wq[l]) for v in xb]
+            T['k'] = [self._mvW(v, m.wk[l]) for v in xb]
+            T['v'] = [self._mvW(v, m.wv[l]) for v in xb]
             T['q_pre'] = [list(q) for q in T['q']]
             T['k_pre'] = [list(k) for k in T['k']]
             for pos in range(n):
@@ -146,14 +174,14 @@ class Trainer:
                                 att[pos][h * HS + i], e.mul(pw, Vv[i]))
             T['att'] = att
             self._tick()
-            proj = [[e.dot(a, r) for r in m.wo[l]] for a in att]
+            proj = [self._mvW(a, m.wo[l]) for a in att]
             xs = [e.t.vadd(x, p) for x, p in zip(xs, proj)]
             T['x_mid'] = [list(x) for x in xs]
             # rmsnorm 2 + swiglu
             T['n2'] = [self._rms_f(x, m.rms_ffn[l]) for x in xs]
             xb2 = [t[0] for t in T['n2']]
-            T['h1'] = [[e.dot(v, r) for r in m.w1[l]] for v in xb2]
-            T['h3'] = [[e.dot(v, r) for r in m.w3[l]] for v in xb2]
+            T['h1'] = [self._mvW(v, m.w1[l]) for v in xb2]
+            T['h3'] = [self._mvW(v, m.w3[l]) for v in xb2]
             T['sig'] = []
             hb = []
             for h1, h3 in zip(T['h1'], T['h3']):
@@ -163,13 +191,13 @@ class Trainer:
                 hb.append([e.mul(e.mul(a, s), b)
                            for a, s, b in zip(h1, sg, h3)])
             T['hb'] = hb
-            mlp = [[e.dot(v, r) for r in m.w2[l]] for v in hb]
+            mlp = [self._mvW(v, m.w2[l]) for v in hb]
             xs = [e.t.vadd(x, p) for x, p in zip(xs, mlp)]
             self._tick()
         tape['nf'] = [self._rms_f(x, m.rms_final) for x in xs]
         xf = [t[0] for t in tape['nf']]
         tape['xf'] = xf
-        logits = [[e.dot(x, r) for r in m.wcls] for x in xf]
+        logits = [self._mvW(x, m.wcls) for x in xf]
         self._tick()
         return logits, tape
 
@@ -213,6 +241,9 @@ class Trainer:
         D, HS, KD = c['dim'], c['head_size'], c['kv_dim']
         H, KV, L = c['n_heads'], c['n_kv_heads'], c['n_layers']
         n = len(toks)
+        _was_full = e.t.trace_full
+        if self.fast:
+            e.t.light()           # counting mode: braid_len exact, no dicts
         logits, tape = self._forward_tape(toks)
 
         # loss = Σ w_pos·(logsumexp(z) − z_target) / Σ w_pos
@@ -252,17 +283,27 @@ class Trainer:
         G = self._zero_grads()
         # lm_head (tied):  dWcls[j] += dlog[j]·xf ;  dxf += dlog[j]·Wcls[j]
         dxs = [[0] * D for _ in range(n)]
-        for pos in range(n - 1):
-            xf = tape['xf'][pos]
-            for j in range(Z):
-                gj = dlog[pos][j]
-                if gj == 0:
+        if self.fast:
+            pmc = self._packed(m.wcls)
+            acc = self._shell.PackedAccum(Z, D)
+            for pos in range(n - 1):
+                if not any(dlog[pos]):
                     continue
-                row = m.wcls[j]
-                gr = G['emb'][j]
-                for i in range(D):
-                    gr[i] = e.add(gr[i], e.mul(gj, xf[i]))
-                    dxs[pos][i] = e.add(dxs[pos][i], e.mul(gj, row[i]))
+                acc.outer_acc(dlog[pos], tape['xf'][pos], e.t)
+                dxs[pos] = self._shell.dot_cols(pmc, dlog[pos], e.t)
+            acc.unpack_into(G['emb'])
+        else:
+            for pos in range(n - 1):
+                xf = tape['xf'][pos]
+                for j in range(Z):
+                    gj = dlog[pos][j]
+                    if gj == 0:
+                        continue
+                    row = m.wcls[j]
+                    gr = G['emb'][j]
+                    for i in range(D):
+                        gr[i] = e.add(gr[i], e.mul(gj, xf[i]))
+                        dxs[pos][i] = e.add(dxs[pos][i], e.mul(gj, row[i]))
         self._tick()
         # final rmsnorm
         dxs = [self._rms_b(dxs[p], m.rms_final, tape['nf'][p][1],
@@ -270,7 +311,22 @@ class Trainer:
         self._tick()
 
         def mat_b(dy_rows, x_rows, W, gW):
-            """y = W·x rows. dW += dy⊗x ; dx = Wᵀ·dy — AMP_MOD/COMP only."""
+            """y = W·x rows. dW += dy⊗x ; dx = Wᵀ·dy — AMP_MOD/COMP only.
+            Fast mode: the two halves run as the shell's outer_acc and
+            dot_cols — the same mul law, the same zero-row skip, the same
+            generator counts (verify_train_fast.py)."""
+            if self.fast:
+                pm = self._packed(W)
+                acc = self._shell.PackedAccum(len(W), len(W[0]))
+                dxr = []
+                for dy, x in zip(dy_rows, x_rows):
+                    if any(dy):
+                        acc.outer_acc(dy, x, e.t)
+                        dxr.append(self._shell.dot_cols(pm, dy, e.t))
+                    else:
+                        dxr.append([0] * len(x))
+                acc.unpack_into(gW)
+                return dxr
             dxr = []
             for dy, x in zip(dy_rows, x_rows):
                 dx = [0] * len(x)
@@ -374,6 +430,8 @@ class Trainer:
             gr = G['emb'][t_]
             for i in range(D):
                 gr[i] = e.add(gr[i], dxs[pos][i])
+        if _was_full:
+            e.t.full()
         return loss, G
 
     def _zero_grads(self):
@@ -396,6 +454,7 @@ class Trainer:
 
     # ── Theorem 3: the step — COMP ∘ SHIFT, rate γ·λᵏ, reward e^(−β·H) ──
     def apply(self, G, gate=None):
+        self._pm.clear()            # weights change: packed forms invalid
         e = self.e
         lr = self.LR if gate is None else e.mul(self.LR, gate)
         def upd(W, gW):

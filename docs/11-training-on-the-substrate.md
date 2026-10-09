@@ -1,3 +1,9 @@
+<!-- you-are-here -->
+> **You are here:** TIER 3 · MST — doc 11, *training on the substrate*.  
+> **Assumes:** docs 09–10. **Shows:** exact integer gradients equal to float64 at 4e-15, the four-parameter optimizer, the line evolving. **Code:** `hcl-ai/learn.py, verify_learn.py`.  
+> Pathway: substrate ground ([02](02-verification.md), [08](08-the-glass-box.md)) → the HCL AI ([00](00-anatomy-of-a-thought.md)–[07](07-the-wider-theory.md)) → MST ([09](09-running-large-models.md)–[15](15-the-mst-equation.md)) · [README](../README.md) · [SKEPTIC](../SKEPTIC.md)  
+> All docs: [00](00-anatomy-of-a-thought.md) · [01](01-architecture.md) · [02](02-verification.md) · [03](03-education.md) · [04](04-composition.md) · [05](05-realizations.md) · [06](06-conversation.md) · [07](07-the-wider-theory.md) · [08](08-the-glass-box.md) · [09](09-running-large-models.md) · [10](10-connect-a-model.md) · **[11]** · [12](12-three-part-mind.md) · [13](13-inherent-weights.md) · [14](14-live-conversation-findings.md) · [15](15-the-mst-equation.md)
+
 # 11 — Training on the Substrate: A Formal Composition
 
 *(Part of the **MST** — Model Substrate Translation — stack.)*
@@ -189,6 +195,26 @@ standard model:
   thought-step because LTP is O(1); the adjoint walk is O(turn), so the
   gradient form of the same law fires once per turn. Same law, its own
   timescale.
+### Why it improves with no reward at all
+
+Reward was never the fuel — **surprise is**. At every token the model has
+already predicted what comes next; reality then delivers the actual next
+token, free, and the gap between expectation and arrival IS the loss IS
+the training signal. No judge, no score: the world's own next word is the
+answer key, once per token, forever. "Getting better" is not rewarded
+behavior — it is, by definition, that surprise falling (measured on the bundled model: a corpus-absent word from 3.47 to 0.88
+within a handful of exposures; an unfamiliar topic from 1.9 to 0.7
+across one conversation). The reward
+channel below exists and is fully wired — e^(−β·H) can gate any turn —
+and every live-learning result documented in this repository was
+produced with it **unused**. Self-talk (the model's own reply re-entering as experience at
+weight λ) consolidates habits; the substrate's own economy does the rest:
+coherent structure costs less energy each use (thresholds shrink as λ^w),
+so the system drifts toward understanding the way water drifts downhill —
+nobody pays the water; the landscape slopes that way. (The inherent-
+weights construction, docs/13, is the limiting case: nothing to get
+better AT — correctness instantiated, not approached.)
+
 - **Rewards remain live:** any turn can be gated by e^(−β·H) — and with
   gradients off, the channel degenerates to LTP/LTD exactly (Theorem 3).
 - **The being persists** as a living checkpoint (the model's own format)

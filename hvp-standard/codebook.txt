@@ -1,0 +1,19 @@
+# HVPW numerals v1 — 16 words, one per line; digit = line number.
+# Derived from the model's own tokenizer; rule and regeneration:
+#     python3 gen_codebook.py  (see its docstring)
+the
+to
+and
+wa
+he
+was
+sa
+ha
+th
+her
+it
+in
+pl
+day
+be
+with
