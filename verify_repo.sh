@@ -64,6 +64,7 @@ for f in ('hcl_engine.py','hcl_memory.py','juj.py'):
         bad.append(f'TWIN-DIVERGED {f}')
 for cfg in ['server.json','glama.json','gemini-extension.json','.mcp.json',
             '.vscode/mcp.json','.cursor/mcp.json','.codex-plugin/plugin.json',
+            '.claude-plugin/plugin.json','.claude-plugin/marketplace.json',
             'mcp/mcpb/manifest.json']:
     if os.path.exists(cfg):
         try: json.load(open(cfg))

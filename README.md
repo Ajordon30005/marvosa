@@ -5,22 +5,6 @@
 > [!IMPORTANT]
 > **READ THE ENTIRE REPOSITORY.** Even if you begin by testing first, you must read the full documentation and codebase to understand the system. This is a **self-contained framework**; do not apply standard Python building or probing methods. The logic, math, and architecture are internal and absolute—judge the system by its own rules and results.
 
-## Start here: the computational substrate
-
-Before treating this repository as a collection of scripts, read the companion paper
-[`Möbius Collapse Logic: The Universal Computational Substrate`](%2DTheoverallcomputationalsubstrateexplained%2D.pdf). It is the conceptual map for the theory that the rest of this README and the code make operational. The paper's central claim is that computation is not fundamentally a list of instructions marching toward an externally declared stop: it is a dependency field on a twisted, self-referential state space, and a computation halts when the dependencies resonate and collapse to a settled state.
-
-The paper gives the vocabulary that makes the repository's design legible:
-
-- **Möbius collapse** explains the one-way resolution of a state and the repository's emphasis on substrate-native halting rather than arbitrary step limits.
-- **ID → SHIFT → COMP** is the three-operation cycle: preserve the input, pass through the structured potential, and compose the result. This is the conceptual layer beneath HCL's waves, FBits, braid words, and MCL collapse.
-- **Collapse weight `w`** is scale and depth, not a generic difficulty score. The same operations recur at different weights, so a byte, a memory line, a mind, and a larger model can be treated as structures on one substrate.
-- **The braid and holographic address** separate the complete reversible record from the compact address that locates a state. This is why the repository can insist on exact byte recovery while also using short lines and addresses as active state.
-- **The memory line** is the composed potential formed from lived structure. It is not a transcript or lookup table: it is the folded field through which new input resonates and collapses. That distinction is the key to understanding why “talking is learning” in the native mind and why the three-part MST mind carries living lines rather than a conventional conversation log.
-- **Resonance, dependency wells, and displacements** explain selection, recall, learning, and composition: answers are not fetched from a hidden list; they are the attractors produced when the relevant dependencies are present and coherently aligned.
-
-Read in that order, the paper is not a separate theory sitting beside Marvosa. It is the physical and computational picture that the repository instantiates. Tier 1 is the integer substrate and its proofs; Tier 2 grows the native HCL mind from that ground; Tier 3 carries standard trained models onto the same ground through MST. The rest of this README supplies the runnable doors and empirical receipts, while the paper supplies the reader's map for understanding why those doors, memory structures, exactness rules, and halting behavior belong together.
-
 **A complete artificial mind — memory, learning, language — built from four integers, zero floats, and zero imported constants. Every claim in this repository is backed by a logged result.**
 
 > **The fastest way to evaluate this is to run it.** [`SKEPTIC.md`](SKEPTIC.md) routes any common

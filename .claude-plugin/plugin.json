@@ -1,0 +1,22 @@
+{
+  "name": "guhct-skills",
+  "version": "1.1.0",
+  "description": "GUHCT/HCL-Pure framework: pure-integer arithmetic engine and three-part holographic memory suite (virtual-memory-hcl, guhct-processor, guhct-living-memory)",
+  "author": {
+    "name": "Anthony Jordon",
+    "email": "fazedarkmatter719@gmail.com",
+    "url": "https://github.com/Ajordon30005"
+  },
+  "homepage": "https://github.com/Ajordon30005/marvosa",
+  "repository": "https://github.com/Ajordon30005/marvosa",
+  "license": "GPL-3.0",
+  "keywords": ["GUHCT", "HCL", "pure-integer", "AI organism", "braid", "exact arithmetic"],
+  "icon": "./.claude-plugin/icon.png",
+  "skills": ["./skills/hcl-pure", "./skills/guhct-memory-suite"],
+  "mcpServers": {
+    "marvosa": {
+      "command": "python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/hcl-ai/marvosa_mcp.py"]
+    }
+  }
+}

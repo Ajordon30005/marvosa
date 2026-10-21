@@ -43,8 +43,17 @@ self-contained.
 - **Claude Code (project scope):** `.mcp.json` at repo root — anyone who
   clones the repo and opens it in Claude Code gets the server offered
   automatically. Manual: `claude mcp add marvosa -- python3 hcl-ai/marvosa_mcp.py`.
-- **Plugin marketplace:** `.claude-plugin/marketplace.json` (skills), plus
-  `/plugin marketplace add Ajordon30005/marvosa`.
+- **Plugin marketplace:** `.claude-plugin/marketplace.json` lists the one
+  plugin, `guhct-skills`, with `source: "./"` (the repo root IS the plugin).
+  The plugin's own manifest is `.claude-plugin/plugin.json` — name, version,
+  description, and the two skill paths (`skills/hcl-pure`,
+  `skills/guhct-memory-suite`); the listing icon is
+  `.claude-plugin/icon.png` (1024×1024 PNG). `.mcp.json` at the root is the
+  plugin's MCP server config, picked up by default. The directory validator
+  requires the component list in `plugin.json`, not inline in the marketplace
+  entry (`MARKETPLACE_ENTRY_INLINE_MANIFEST`). Install:
+  `/plugin marketplace add Ajordon30005/marvosa`, then
+  `/plugin install guhct-skills@marvosa`. Local check: `claude plugin validate .`
 - **Community directory:** submission form at
   clau.de/plugin-directory-submission (repo: anthropics/claude-plugins-community).
 
